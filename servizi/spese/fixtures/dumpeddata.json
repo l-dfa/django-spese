@@ -1,0 +1,351 @@
+[
+{
+    "model": "spese.source",
+    "pk": 1,
+    "fields": {
+        "name": "cache",
+        "users": [
+            1,
+            2
+        ]
+    }
+},
+{
+    "model": "spese.source",
+    "pk": 2,
+    "fields": {
+        "name": "postepay",
+        "users": [
+            1
+        ]
+    }
+},
+{
+    "model": "spese.source",
+    "pk": 3,
+    "fields": {
+        "name": "ubi bancomat",
+        "users": [
+            1
+        ]
+    }
+},
+{
+    "model": "spese.source",
+    "pk": 4,
+    "fields": {
+        "name": "ubi prepagata",
+        "users": [
+            1
+        ]
+    }
+},
+{
+    "model": "spese.source",
+    "pk": 5,
+    "fields": {
+        "name": "ubi diners",
+        "users": [
+            1
+        ]
+    }
+},
+{
+    "model": "spese.source",
+    "pk": 6,
+    "fields": {
+        "name": "ubi conto",
+        "users": [
+            1
+        ]
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 1,
+    "fields": {
+        "user": 1,
+        "source": 2,
+        "date": "2016-06-28",
+        "description": "acconto da selta per fattura proforma 1/2015",
+        "amount": "25000.00"
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 2,
+    "fields": {
+        "user": 1,
+        "source": 1,
+        "date": "2016-07-26",
+        "description": "a marco un sacco",
+        "amount": "-5.00"
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 3,
+    "fields": {
+        "user": 1,
+        "source": 1,
+        "date": "2016-07-28",
+        "description": "pranzo",
+        "amount": "-5.30"
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 4,
+    "fields": {
+        "user": 1,
+        "source": 1,
+        "date": "2016-06-30",
+        "description": "nuova spesa",
+        "amount": "-10.00"
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 9,
+    "fields": {
+        "user": 1,
+        "source": 1,
+        "date": "2016-04-03",
+        "description": "descrizione",
+        "amount": "-15.00"
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 10,
+    "fields": {
+        "user": 1,
+        "source": 2,
+        "date": "2016-08-08",
+        "description": "descrizioni",
+        "amount": "-5.00"
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 13,
+    "fields": {
+        "user": 1,
+        "source": 3,
+        "date": "2016-08-09",
+        "description": "expense description just a little more long",
+        "amount": "-40.00"
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 21,
+    "fields": {
+        "user": 1,
+        "source": 3,
+        "date": "2016-07-03",
+        "description": "spesa di luglio",
+        "amount": "-55.00"
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 22,
+    "fields": {
+        "user": 1,
+        "source": 2,
+        "date": "2016-08-10",
+        "description": "spesaccia",
+        "amount": "-10.00"
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 23,
+    "fields": {
+        "user": 1,
+        "source": 2,
+        "date": "2016-08-10",
+        "description": "spesaccia seconda",
+        "amount": "-10.00"
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 24,
+    "fields": {
+        "user": 1,
+        "source": 2,
+        "date": "2016-08-10",
+        "description": "spesaccia seconda",
+        "amount": "-10.00"
+    }
+},
+{
+    "model": "spese.expense",
+    "pk": 27,
+    "fields": {
+        "user": 1,
+        "source": 3,
+        "date": "2016-08-01",
+        "description": "da iphone",
+        "amount": "-25.00"
+    }
+},
+{
+    "model": "taggit.tag",
+    "pk": 1,
+    "fields": {
+        "name": "transfer_funds",
+        "slug": "transfer funds"
+    }
+},
+{
+    "model": "taggit.tag",
+    "pk": 2,
+    "fields": {
+        "name": "selta",
+        "slug": "selta"
+    }
+},
+{
+    "model": "taggit.tag",
+    "pk": 3,
+    "fields": {
+        "name": "marco",
+        "slug": "marco"
+    }
+},
+{
+    "model": "taggit.tag",
+    "pk": 4,
+    "fields": {
+        "name": "1",
+        "slug": "1"
+    }
+},
+{
+    "model": "taggit.tag",
+    "pk": 5,
+    "fields": {
+        "name": "pluto",
+        "slug": "pluto"
+    }
+},
+{
+    "model": "taggit.tag",
+    "pk": 6,
+    "fields": {
+        "name": "pippo",
+        "slug": "pippo"
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 47,
+    "fields": {
+        "tag": 1,
+        "content_type": 10,
+        "object_id": 3
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 51,
+    "fields": {
+        "tag": 1,
+        "content_type": 10,
+        "object_id": 1
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 52,
+    "fields": {
+        "tag": 3,
+        "content_type": 10,
+        "object_id": 2
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 53,
+    "fields": {
+        "tag": 3,
+        "content_type": 10,
+        "object_id": 4
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 66,
+    "fields": {
+        "tag": 3,
+        "content_type": 10,
+        "object_id": 21
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 67,
+    "fields": {
+        "tag": 1,
+        "content_type": 10,
+        "object_id": 13
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 68,
+    "fields": {
+        "tag": 2,
+        "content_type": 10,
+        "object_id": 13
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 69,
+    "fields": {
+        "tag": 6,
+        "content_type": 10,
+        "object_id": 13
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 70,
+    "fields": {
+        "tag": 4,
+        "content_type": 10,
+        "object_id": 22
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 71,
+    "fields": {
+        "tag": 4,
+        "content_type": 10,
+        "object_id": 23
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 72,
+    "fields": {
+        "tag": 4,
+        "content_type": 10,
+        "object_id": 24
+    }
+},
+{
+    "model": "taggit.taggeditem",
+    "pk": 75,
+    "fields": {
+        "tag": 6,
+        "content_type": 10,
+        "object_id": 27
+    }
+}
+]

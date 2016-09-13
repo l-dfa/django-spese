@@ -1,0 +1,17 @@
+[
+  {
+    "model": "spese.source",
+    "pk": 1,
+    "fields": {
+      "name": "cache"
+    }
+  },
+  {
+    "model": "taggit.tag",
+    "pk": 1,
+    "fields": {
+      "name": "transfer_funds",
+      "slug": "transfer funds"
+    }
+  }
+]

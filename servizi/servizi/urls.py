@@ -1,3 +1,4 @@
+# servizi/urls.py
 """servizi URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -15,7 +16,17 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
+from django.conf.urls import include
+from . import views
+# from .forms import LoginForm
 
 urlpatterns = [
+    url(r'^$', views.home, name='home'),              # servizi index
+    url(r'^home$', views.home, name='home'),          # servizi index
+    url(r'^spese/', include('spese.urls')),
     url(r'^admin/', admin.site.urls),
+    # url('^login/$', auth_views.login, {'template_name': 'login.html', 'authentication_form': LoginForm}, name='login'),
+    url('^login/$', auth_views.login, {'template_name': 'login.html',}, name='login'),
+    url(r'^logout/$', auth_views.logout, {'next_page': '/login'}, name='logout'), 
 ]
