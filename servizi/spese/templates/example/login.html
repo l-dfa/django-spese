@@ -1,0 +1,118 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+        <title>Services login</title>
+        <!-- Core CSS - Include with every page -->
+        <link rel="stylesheet" href=href="{% static 'css/normalize.css' %}">
+        <link rel="stylesheet" href="{% static 'css/skeleton.css' %}">
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
+        <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
+        
+        <!-- Project CSS -->
+        <link rel="stylesheet" href="{% static 'css/servizi.css' %}">
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <div class="u-full-width">
+                    <div id="logo">
+                        <a href="{% url 'home' %}">Servizi</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+            
+        {% if messages %}
+        <div class="container">
+            <div class="u-full-width">
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        
+    {% if form.errors %}
+    <div class="container">
+        <div class="u-full-width">
+            <p>Your username and password didn't match. Please try again.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if next %}
+    <div class="container">
+        <div class="u-full-width">
+        {% if user.is_authenticated %}
+            <p>Your account doesn't have access to this page. To proceed,
+                please login with an account that has access.</p>
+        {% else %}
+            <p>Please login to see this page.</p>
+        {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                <div class="login-panel panel panel-default">
+                    <div class="panel-heading">
+                        <!-- <h3 class="panel-title">Please Sign In</h3> -->
+                        <h1 class="panel-title">Please Sign In</h1>
+                    </div>
+                    <div class="panel-body">
+                        <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    
+                            <p class="bs-component">
+                                <table>
+                                    <tr>
+                                        <td>{{ form.username.label_tag }}</td>
+                                        <td>{{ form.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ form.password.label_tag }}</td>
+                                        <td>{{ form.password }}</td>
+                                    </tr>
+                                </table>
+                            </p>
+                            <p class="bs-component">
+                                <center>
+                                    <input class="btn btn-success btn-sm" type="submit" value="login" />
+                                </center>
+                            </p>
+                            <input type="hidden" name="next" value="{{ next }}" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Core Scripts - Include with every page -->
+        <!-- <script src = "{% static 'js/jquery.min.js' %}"></script> -->
+        <!-- <script src = "{% static 'js/bootstrap.min.js' %}"></script> -->
+    <script>
+        {% if not user.is_authenticated %}
+        $("ul.nav.navbar-nav.navbar-right").css("display","none");
+        {% endif %}
+    </script>
+
+    <footer>
+        <div class="container">
+            <div class="u-full-width">
+                <p>&copy; 2016. Servizi. All Rights Reserved.</p>
+            </div>
+        </div<
+    </footer>
+    </body>
+</html>
+
