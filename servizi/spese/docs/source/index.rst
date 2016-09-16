@@ -21,9 +21,10 @@ Contents:
 
    installation
    userguide
-   modules/models
    changelog
    license
+
+..   modules/models
 
 Indices and tables
 ==================

@@ -3,6 +3,11 @@
 Changelog
 =========
 
+Version 0.2
+-------------
+
+* Added documentation
+
 Version 0.1
 -------------
 

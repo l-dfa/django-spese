@@ -18,22 +18,22 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 # +-3 activate by ldfa@2016.09.16  to get application models
-import os
-import sys
-sys.path.insert(0, os.path.abspath('.'))
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('.'))
 
 # +3 ldfa@2016.09.16  to get application models
 # WARNING here there is an absolute path
-sys.path.insert(0, os.path.abspath('/Dati/Studio/Sviluppi/progetto_servizi/servizi'))
-# print(sys.path)
+# sys.path.insert(0, os.path.abspath('/Dati/Studio/Sviluppi/progetto_servizi/servizi'))
+# # print(sys.path)
     
 # +1 ldfa@2016.09.15
 import sphinx_rtd_theme
 
 # +3 ldfa@2016.09.16 to get application models
-import django
-os.environ['DJANGO_SETTINGS_MODULE'] = 'servizi.settings'
-django.setup()
+# import django
+# os.environ['DJANGO_SETTINGS_MODULE'] = 'servizi.settings'
+# django.setup()
 
 # -- General configuration ------------------------------------------------
 
