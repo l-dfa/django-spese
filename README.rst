@@ -3,9 +3,7 @@ Spese
 =====
 
 *Spese* is a simple Django app to register personal expenses,
-inspired by django-expense_ .  
-
-.. _django-expense: https://django-expense.readthedocs.io/en/latest/
+inspired by `django-expense <https://django-expense.readthedocs.io/en/latest/>`_ .  
 
 Detailed documentation will be in the ``docs`` directory
 (not implemented yet).
