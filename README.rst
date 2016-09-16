@@ -5,8 +5,7 @@ Spese
 *Spese* is a simple Django app to register personal expenses,
 inspired by `django-expense <https://django-expense.readthedocs.io/en/latest/>`_ .  
 
-Detailed documentation will be in the ``docs`` directory
-(not implemented yet).
+Detailed documentation is in the ``docs`` directory.
 
 Quick start
 -----------
