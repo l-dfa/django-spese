@@ -1,8 +1,8 @@
 =====
-Spese
+Django-spese
 =====
 
-*Spese* is a simple Django app to register personal expenses,
+*Django-spese* is a simple Django app to register personal expenses,
 inspired by `django-expense <https://django-expense.readthedocs.io/en/latest/>`_ .  
 
 Detailed documentation is in the ``docs`` directory.
@@ -10,7 +10,7 @@ Detailed documentation is in the ``docs`` directory.
 Quick start
 -----------
 
-1. If you have your project to host *spese*, use it.
+1. If you have your project to host *Django-spese*, use it.
    Otherwise create a base project as follows.
    Install a virtualenv with python 3.5, django, django-taggit, django-spese
    and create the project::
