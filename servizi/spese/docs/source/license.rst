@@ -3,6 +3,6 @@
 License
 =======
 
-Django-spense is licensed under the MIT License:
+Django-spese is licensed under the MIT License:
 
 .. include:: ../../../../LICENSE
