@@ -233,12 +233,15 @@ def tags_balance(request):
         item.balance    = item.positive + item.negative
         ri = RepoItem(item.name, item.positive, item.negative, item.balance)
         list.append(ri)
-    # are there expenses without tags? we need them also    
-    sum = Expense.objects.exclude(user=request.user, tags__in=tags, amount__gt=0).aggregate(Sum("amount"))
+    ### TRACE ###    pdb.set_trace()
+    wout_tags = Expense.objects.exclude(user=request.user, tags__in=tags)
+    sum = wout_tags.filter(amount__gt=0).aggregate(Sum("amount"))
     positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-    sum = Expense.objects.exclude(user=request.user, tags__in=tags, amount__lt=0).aggregate(Sum('amount'))
+    log.debug("positive sum: {}".format(sum))
+    sum = wout_tags.filter(amount__lt=0).aggregate(Sum("amount"))
     negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-    ri = RepoItem('without tags', positive, negative, item.positive + item.negative)
+    log.debug("negative sum: {}".format(sum))
+    ri = RepoItem('without tags', positive, negative, positive + negative)
     list.insert(0, ri)
     return render(request, 'spese/balance.html', { 'page_identification': page_identification,
                                                    'list': list,
