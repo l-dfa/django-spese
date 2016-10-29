@@ -188,20 +188,61 @@ def index(request):
                  )
     
     
+class RepoItem(object):
+    def __init__(self, name, positive, negative, balance):
+        self.name = name
+        self.positive = positive
+        self.negative = negative
+        self.balance = balance
+
+    def __str__(self):
+        """return name"""
+        return self.name
+
 @login_required(login_url='/login/')
 def balance(request):
+    """ for every source calculates positive, negative and balance sums """
     page_identification = 'Spese: Accounts balance'
-    accounts_list = Source.objects.all()
-    ###  TRACE  ###    pdb.set_trace()
-    for account in accounts_list:
-        sum = Expense.objects.filter(user=request.user, source=account, amount__gt=0).aggregate(Sum("amount"))
-        account.positive = sum["amount__sum"] if sum else 0
-        sum = Expense.objects.filter(user=request.user, source=account, amount__lt=0).aggregate(Sum('amount'))
-        account.negative = sum["amount__sum"] if sum else 0
-        account.balance    = account.positive + account.negative
-    return render(request, 'spese/balance.html', {'page_identification': page_identification,
-                                                'accounts_list': accounts_list,
-                                                }
+    accounts = Source.objects.all()
+    list = []
+    for item in accounts:
+        sum = Expense.objects.filter(user=request.user, source=item, amount__gt=0).aggregate(Sum("amount"))
+        item.positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        sum = Expense.objects.filter(user=request.user, source=item, amount__lt=0).aggregate(Sum('amount'))
+        item.negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        item.balance    = item.positive + item.negative
+        ri = RepoItem(item.name, item.positive, item.negative, item.balance)
+        list.append(ri)
+    return render(request, 'spese/balance.html', { 'page_identification': page_identification,
+                                                   'list': list,
+                                                 }
+                 )
+
+
+@login_required(login_url='/login/')
+def tags_balance(request):
+    """ tag by tag calculates positive, negative and balance sums """
+    page_identification = 'Spese: Tags balance'
+    tags = Tag.objects.all()
+    list = []
+    for item in tags:
+        sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__gt=0).aggregate(Sum("amount"))
+        item.positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__lt=0).aggregate(Sum('amount'))
+        item.negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        item.balance    = item.positive + item.negative
+        ri = RepoItem(item.name, item.positive, item.negative, item.balance)
+        list.append(ri)
+    # are there expenses without tags? we need them also    
+    sum = Expense.objects.exclude(user=request.user, tags__in=tags, amount__gt=0).aggregate(Sum("amount"))
+    positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+    sum = Expense.objects.exclude(user=request.user, tags__in=tags, amount__lt=0).aggregate(Sum('amount'))
+    negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+    ri = RepoItem('without tags', positive, negative, item.positive + item.negative)
+    list.insert(0, ri)
+    return render(request, 'spese/balance.html', { 'page_identification': page_identification,
+                                                   'list': list,
+                                                 }
                  )
 
                  

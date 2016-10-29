@@ -4,23 +4,27 @@
     {% block operation_content %}
     <div class="container">
         <div class="u-full-width">
-        {% if accounts_list %}
+        {% if list %}
             <table class="u-full-width">
             <thead>
                 <tr>
-                    <th>source</th>
+                    {% if page_identification == 'Spese: Accounts balance' %}
+                        <th>source</th>
+                    {% elif page_identification == 'Spese: Tags balance' %}
+                        <th>tag</th>
+                    {% endif %}
                     <th class="s-text-right">in</th>
                     <th class="s-text-right">out</th>
                     <th class="s-text-right">balance</th>
                 </tr>
             </thead>
             <tbody>
-            {% for account in accounts_list %}
+            {% for item in list %}
                 <tr>
-                    <td>{{ account.name }}</td>
-                    <td class="s-text-right">{{ account.positive }}</td>
-                    <td class="s-text-right">{{ account.negative }}</td>
-                    <td class="s-text-right">{{ account.balance }}</td>
+                    <td>{{ item.name }}</td>
+                    <td class="s-text-right">{{ item.positive }}</td>
+                    <td class="s-text-right">{{ item.negative }}</td>
+                    <td class="s-text-right">{{ item.balance }}</td>
                 </tr>
             {% endfor %}
             </tbody>
