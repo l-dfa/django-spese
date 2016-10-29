@@ -38,7 +38,7 @@ from django.http import Http404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 
-# django foms
+# django forms
 from django.forms import modelform_factory
 from django.utils import timezone
 # from django.core.exceptions import ValidationError
@@ -47,6 +47,9 @@ from django.contrib import messages
 
 # django authorization
 from django.contrib.auth.decorators import login_required
+
+# django models
+from django.db.models import Sum
 
 # spese & taggit
 from .models import Expense, Source
@@ -185,6 +188,23 @@ def index(request):
                  )
     
     
+@login_required(login_url='/login/')
+def balance(request):
+    page_identification = 'Spese: Accounts balance'
+    accounts_list = Source.objects.all()
+    ###  TRACE  ###    pdb.set_trace()
+    for account in accounts_list:
+        sum = Expense.objects.filter(user=request.user, source=account, amount__gt=0).aggregate(Sum("amount"))
+        account.positive = sum["amount__sum"] if sum else 0
+        sum = Expense.objects.filter(user=request.user, source=account, amount__lt=0).aggregate(Sum('amount'))
+        account.negative = sum["amount__sum"] if sum else 0
+        account.balance    = account.positive + account.negative
+    return render(request, 'spese/balance.html', {'page_identification': page_identification,
+                                                'accounts_list': accounts_list,
+                                                }
+                 )
+
+                 
 @login_required(login_url="login/")
 def detail(request, expense_id):
     expense = get_object_or_404(Expense, pk=expense_id)

@@ -1,0 +1,33 @@
+{% extends 'spese/base_spese.html' %}
+
+
+    {% block operation_content %}
+    <div class="container">
+        <div class="u-full-width">
+        {% if accounts_list %}
+            <table class="u-full-width">
+            <thead>
+                <tr>
+                    <th>source</th>
+                    <th class="s-text-right">in</th>
+                    <th class="s-text-right">out</th>
+                    <th class="s-text-right">balance</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for account in accounts_list %}
+                <tr>
+                    <td>{{ account.name }}</td>
+                    <td class="s-text-right">{{ account.positive }}</td>
+                    <td class="s-text-right">{{ account.negative }}</td>
+                    <td class="s-text-right">{{ account.balance }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table> 
+        {% else %}
+            <p>No accounts are available.</p>
+        {% endif %}
+        </div>
+    </div>    
+    {% endblock %}
