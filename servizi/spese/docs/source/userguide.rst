@@ -171,13 +171,15 @@ two voices:
 * *add* adding us a new expense;
 * *transfer funds* to realize a transfer of money from one source to another.
 
-If we click on an expense, we'll get its detail:
+If we click on an expense desciption, we'll get its detail:
 
 .. image:: images/use-02.svg
 
 and from there we can:
 
+* *add*    to insert a new expense (this is the same menu voice from home);
 * *change* to edit the expense characteristics;
+* *toggle* to change the amount sign of the expense;
 * *delete* to remove the expense.
 
 Adding expenses
@@ -214,6 +216,19 @@ In this form we can change whatever we wish. To save changes, we
 must push the *save* button, moving us to detail again. Or we can
 choose the *save & continue* button, that keep us on the current
 change form.
+
+Toggling expense
+~~~~~~~~~~~~~~~~
+
+From the *detail* window, we can choose the *toggle* menu voice.
+
+If we hit this voice, the application change the sign of
+the amount of the displayed espense.
+
+This action is immediatly shown. We can observe:
+
+* a (hopefully) confirming message after the spese's menu area;
+* the new amount of the expense, with the same quantity, but opposite sign.
 
 Deleting expense
 ~~~~~~~~~~~~~~~~

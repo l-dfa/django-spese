@@ -3,6 +3,12 @@
 Changelog
 =========
 
+Version 0.3
+-------------
+
+* Added expense amount toggle functionality
+* Added log facility 
+
 Version 0.2
 -------------
 
