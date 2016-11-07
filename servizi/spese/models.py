@@ -28,21 +28,21 @@ class ExpenseManager(models.Manager):
         
         return Expense.objects.dates('date', 'year', order='DESC')
 
-class Source(models.Model):
-    """From where to pay for expense is represented by this model
-
+class Account(models.Model):
+    """ From where to pay for expense is represented by this model
+    
     :Fields:
     
     * ``name``, the source name;
     * ``users``, who can use this source.
-"""
+    """
     
     name = models.CharField(_('name'), max_length=50)
     users = models.ManyToManyField(User)
 
     class Meta:
-        verbose_name_plural = _('sources')
-        verbose_name = _('source')
+        verbose_name_plural = _('accounts')
+        verbose_name = _('account')
         ordering = ['name', ]
 
     def __str__(self):
@@ -50,7 +50,7 @@ class Source(models.Model):
 
 
 class Expense(models.Model):
-    """Expenses are represented by this model.
+    """ Expenses are represented by this model.
     
     This class derive from class *Expense* of *django-expense* app.
     Please keep note of its copyright @
@@ -76,7 +76,7 @@ class Expense(models.Model):
     """
     
     user = models.ForeignKey(User)
-    source = models.ForeignKey(Source, related_name='expenses', null=True,
+    account = models.ForeignKey(Account, related_name='expenses', null=True,
                                blank=True, default=1)
     date = models.DateField(_('date'), 'date', null=True, blank=True, default=timezone.now)
     description = models.CharField(_('description'), max_length=300, null=True,
@@ -86,10 +86,10 @@ class Expense(models.Model):
     tags = TaggableManager()
 
     class Meta:
-        """define verbose name, its plural, and the ordering as -date + source"""
+        """define verbose name, its plural, and the ordering as -date + account"""
         verbose_name_plural = _('expenses')
         verbose_name = _('expense')
-        ordering = ['-date', 'source', ]
+        ordering = ['-date', 'account', ]
 
     def __str__(self):
         """return description"""

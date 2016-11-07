@@ -7,10 +7,10 @@
             {% csrf_token %}
             
             <div class="fieldWrapper">
-                <label for="source">Source: </label>
-                <select name="source">
-                    {% for s in sources %}
-                        <option value="{{ s.pk }}" {% if source_selected == s.pk %} selected {% endif %} >
+                <label for="account">Account: </label>
+                <select name="account">
+                    {% for s in accounts %}
+                        <option value="{{ s.pk }}" {% if account_selected == s.pk %} selected {% endif %} >
                                        {{ s.name }}
                         </option>
                     {% endfor %}

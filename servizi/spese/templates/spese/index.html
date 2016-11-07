@@ -22,7 +22,7 @@
             <table class="u-full-width">
             <thead>
                 <tr>
-                    <th>source</th>
+                    <th>account</th>
                     <th>date</th>
                     <th>description</th>
                     <th>amount</th>
@@ -31,7 +31,7 @@
             <tbody>
             {% for expense in expenses_list %}
                 <tr>
-                    <td>{{ expense.source.name }}</td>
+                    <td>{{ expense.account.name }}</td>
                     <td>{{ expense.date }}</td>
                     <td><a href="{% url 'spese:detail' expense.id %}">{{ expense.description }}</a></td>
                     <td class="s-text-right">{{ expense.amount }}</td>

@@ -19,8 +19,8 @@ class TransferFundsForm(ExpenseForm):
     CHOICES = (
          ('EXMPL', 'Example'),
     )
-    tf_source = forms.ChoiceField(label='transfer source', required=True, choices=CHOICES)
-    tf_destination = forms.ChoiceField(label='transfer destination', required=True, choices=CHOICES)
+    tf_source = forms.ChoiceField(label='transfer account: source', required=True, choices=CHOICES)
+    tf_destination = forms.ChoiceField(label='transfer account: destination', required=True, choices=CHOICES)
     
     def __init__(self, *args, **kwargs):
         '''

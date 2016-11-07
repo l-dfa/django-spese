@@ -52,9 +52,9 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 
 # spese & taggit
-from .models import Expense, Source
+from .models import Expense, Account
 from .forms import ExpenseForm, TransferFundsForm
-from .utils import get_sources
+from .utils import get_accounts
 from taggit.models import Tag
 
 
@@ -78,18 +78,18 @@ def toggle(request, expense_id):
 @login_required(login_url="/login/")
 def add(request):
     page_identification = 'Spese: new expense'
-    sources = Source.objects.filter(users=request.user)
-    source_selected = None
+    accounts = Account.objects.filter(users=request.user)
+    account_selected = None
     tags_selected = []
     if request.method == "POST":
         form = ExpenseForm(request.POST)
-        source_selected = int(request.POST['source'])
+        account_selected = int(request.POST['account'])
         tags_selected = request.POST.getlist('choice')   # 'getlist' gets [] in case of no choices
         if form.is_valid():
             try:
                 expense = form.save(commit=False)
                 expense.user = request.user
-                expense.source = Source.objects.get(id=source_selected)
+                expense.account = Account.objects.get(id=account_selected)
                 expense.save()
                 tags = request.POST.getlist('choice')   # 'getlist' gets [] in case of no choices
                 expense.tags.set(*tags, clear=True)
@@ -115,8 +115,8 @@ def add(request):
     return render(request, 'spese/add.html', { 'page_identification': page_identification,
                                'operation': 'new',
                                'form': form,
-                               'sources': sources,
-                               'source_selected': source_selected,
+                               'accounts': accounts,
+                               'account_selected': account_selected,
                                'alltags': alltags,
                                'tags_selected': tags_selected,
                                })
@@ -127,15 +127,15 @@ def transfer_funds(request):
     add transfer funds 
     '''
     page_identification = 'Spese: new transfer funds'
-    source_choices = get_sources(request.user)
-    if not source_choices or len(source_choices) < 2:
-        msg = 'User {} has too little sources to do a transfer funds'.format(request.user.username)
+    account_choices = get_accounts(request.user)
+    if not account_choices or len(account_choices) < 2:
+        msg = 'User {} has too few accounts to do a transfer funds'.format(request.user.username)
         log.error(msg)
         messages.error(request, msg)
         return HttpResponseRedirect(reverse('spese:index'))
-    source_selected = None
+    account_selected = None
     if request.method == "POST":
-        form = TransferFundsForm(request.POST, custom_choices=source_choices)
+        form = TransferFundsForm(request.POST, custom_choices=account_choices)
         if form.is_valid():
             try:
                 ### TRACE ###                   pdb.set_trace()
@@ -143,12 +143,12 @@ def transfer_funds(request):
                 tf_destination_id = int(form['tf_destination'].value())
                 expense = form.save(commit=False)
                 expense.user = request.user
-                expense.source = Source.objects.get(id=tf_source_id)
+                expense.account = Account.objects.get(id=tf_source_id)
                 expense.save()                                           # setting source record id
                 tags = ['transfer_funds']
                 expense.tags.set(*tags, clear=True)                      # (this needs record id)
                 expense.save()                                           # this is the complete source record, with tag
-                expense.source = Source.objects.get(id=tf_destination_id)
+                expense.account = Account.objects.get(id=tf_destination_id)
                 expense.amount = -expense.amount
                 expense.pk = None                                        # https://docs.djangoproject.com/en/1.8/topics/db/queries/#copying-model-instances
                 expense.save()                                           # setting destination id
@@ -201,14 +201,14 @@ class RepoItem(object):
 
 @login_required(login_url='/login/')
 def balance(request):
-    """ for every source calculates positive, negative and balance sums """
+    """ for every account calculates positive, negative and balance sums """
     page_identification = 'Spese: Accounts balance'
-    accounts = Source.objects.all()
+    accounts = Account.objects.filter(users__in=[request.user,])
     list = []
     for item in accounts:
-        sum = Expense.objects.filter(user=request.user, source=item, amount__gt=0).aggregate(Sum("amount"))
+        sum = Expense.objects.filter(user=request.user, account=item, amount__gt=0).aggregate(Sum("amount"))
         item.positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-        sum = Expense.objects.filter(user=request.user, source=item, amount__lt=0).aggregate(Sum('amount'))
+        sum = Expense.objects.filter(user=request.user, account=item, amount__lt=0).aggregate(Sum('amount'))
         item.negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
         item.balance    = item.positive + item.negative
         ri = RepoItem(item.name, item.positive, item.negative, item.balance)
@@ -269,17 +269,17 @@ def detail(request, expense_id):
 def change(request, expense_id):
     expense = get_object_or_404(Expense, pk=expense_id)
     page_identification = 'Spese: edit expense detail'
-    sources = Source.objects.filter(users=request.user)
-    source_selected = expense.source.pk
+    accounts = Account.objects.filter(users=request.user)
+    account_selected = expense.account.pk
     tags_selected = expense.tags.names
     if request.method == "POST":
         form = ExpenseForm(request.POST, instance=expense)
-        source_selected = int(request.POST['source'])
+        account_selected = int(request.POST['account'])
         tags_selected = request.POST.getlist('choice')   # 'getlist' gets [] in case of no choices
         if form.is_valid():
             try:
                 expense = form.save(commit=False)
-                expense.source = Source.objects.get(id=source_selected)
+                expense.account = Account.objects.get(id=account_selected)
                 expense.save()
                 expense.tags.set(*tags_selected, clear=True)
                 expense.save()
@@ -300,8 +300,8 @@ def change(request, expense_id):
     return render(request, 'spese/add.html', { 'page_identification': page_identification,
                               'operation': 'edit',
                               'form': form,
-                              'sources': sources,
-                              'source_selected': source_selected,
+                              'accounts': accounts,
+                              'account_selected': account_selected,
                               'alltags': alltags,
                               'tags_selected': tags_selected,
                               })
