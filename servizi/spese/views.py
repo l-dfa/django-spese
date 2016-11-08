@@ -251,6 +251,7 @@ def tags_balance(request):
                  
 @login_required(login_url="login/")
 def detail(request, expense_id):
+    #pdb.set_trace()
     expense = get_object_or_404(Expense, pk=expense_id)
     page_identification = 'Spese: show expense detail'
     if not expense.user == request.user:

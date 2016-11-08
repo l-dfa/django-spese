@@ -23,7 +23,7 @@
             <p>on: {{ expense.date }} </p>
             <p>{{ expense.description }} </p>
             <p>amount: {{ expense.amount }} </p>
-            {% if expense.tags|length > 0 %}
+            {% if expense.tags.count > 0 %}
                 <ul> Type of expense: 
                 {% for tag in expense.tags.names %}
                     <li class="label-expense-type"> {{ tag }} </li>&nbsp

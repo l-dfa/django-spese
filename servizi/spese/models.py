@@ -100,8 +100,8 @@ class Expense(models.Model):
         return ('<div class="number">%s</div>' %
                 (numberformat.numberformat(self.amount), ))
 
-    formatted_amount.short_description = _('amount')
-    formatted_amount.allow_tags = True
+    # formatted_amount.short_description = _('amount')
+    # formatted_amount.allow_tags = True
 
     def date_str(self):
         """return the date as string formatted by ``%Y-%m-%d`` pattern"""
