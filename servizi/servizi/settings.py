@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'spese',
     'taggit',
+    'veicoli',
 ]
 
 #   ! chk spese needs django.contrib.sessions.middleware.SessionMiddleware

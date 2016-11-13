@@ -1,0 +1,45 @@
+{% extends 'spese/base_spese.html' %}
+
+    {% block operations %}
+    <div class="container">
+        <div class="u-full-width">
+            <nav class="navbar operations">
+                <ul>
+                   <li> <a href="{% url 'veicoli:add' %}">add</a> </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block operation_content %}
+    <div class="container">
+        <div class="u-full-width">
+        {% if expenses_list %}
+            <table class="u-full-width">
+            <thead>
+                <tr>
+                    <th>account</th>
+                    <th>date</th>
+                    <th>description</th>
+                    <th>amount</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for expense in expenses_list %}
+                <tr>
+                    <td>{{ expense.account.name }}</td>
+                    <td>{{ expense.date }}</td>
+                    <td><a href="{% url 'veicoli:detail' expense.id %}">{{ expense.description }}</a></td>
+                    <td class="s-text-right">{{ expense.amount }}</td>
+                    <!-- <td style="text-align:right" >{{ expense.amount }}</td> -->
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table> 
+        {% else %}
+            <p>No expenses are available.</p>
+        {% endif %}
+        </div>
+    </div>    
+    {% endblock %}

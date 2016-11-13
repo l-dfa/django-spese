@@ -1,4 +1,8 @@
 # spese/models.py
+''' app spese models
+
+    ldfa@2016.11.01 changing entity name: from source to account
+'''
 import datetime
 
 from django.db import models
@@ -93,7 +97,7 @@ class Expense(models.Model):
 
     def __str__(self):
         """return description"""
-        return self.description
+        return '{} @ {}'.format(self.description, self.date_str())
 
     def formatted_amount(self):
         """return *amount* as string in css class ``number``"""

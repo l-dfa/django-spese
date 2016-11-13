@@ -1,11 +1,10 @@
-#spese/forms.py
+# spese/forms.py
 # python debugging
 import pdb
 
 # django and app
 from django import forms
 from .models import Expense
-# from .utils import get_sources
 
 class ExpenseForm(forms.ModelForm):
     class Meta:
@@ -31,5 +30,5 @@ class TransferFundsForm(ExpenseForm):
         custom_choices = kwargs.pop('custom_choices', None)        # from daniel roseman
         super(TransferFundsForm, self).__init__(*args, **kwargs)
         if custom_choices:
-            self.fields['tf_source'].choices = custom_choices      # form lastmikoi
+            self.fields['tf_source'].choices = custom_choices      # from lastmikoi
             self.fields['tf_destination'].choices = custom_choices

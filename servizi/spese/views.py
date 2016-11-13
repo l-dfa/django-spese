@@ -1,6 +1,7 @@
 # spese/views.py
 ''' app spese views
 
+    ldfa@2016.11.01 changing entity name: from source to account
     ldfa@2016.10.29 adding log facility in primary program points
         bug 0001: got a pdb error in transfer funds from production site.
                   after introducing the log facility it doesn't appair again.
@@ -166,7 +167,7 @@ def transfer_funds(request):
             else:
                 return HttpResponseRedirect(reverse('spese:index'))
     else:
-        form = TransferFundsForm(custom_choices=source_choices,
+        form = TransferFundsForm(custom_choices=account_choices,
                                  initial={
                                      'description': 'transferring funds',
                                      'date': timezone.now(),
