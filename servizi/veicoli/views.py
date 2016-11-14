@@ -114,12 +114,12 @@ def add(request):
 
 @login_required(login_url='/login/')
 def index(request):
-    ### TRACE ### pdb.set_trace()
     page_identification = 'Veicoli'
     event_expense_list = [event.expense.pk for event in Event.objects.all()]
-    expenses_list = Expense.objects.filter(user=request.user, pk__in=event_expense_list).order_by('-date')      #######   SVILUPPO
+    event_list = Event.objects.filter(expense__user=request.user).order_by('vehicle', '-expense__date')      #######   SVILUPPO
+    ### TRACE ###    pdb.set_trace()
     return render(request, 'veicoli/index.html', {'page_identification': page_identification,
-                                                'expenses_list': expenses_list,
+                                                  'event_list': event_list,
                                                 }
                  )
 

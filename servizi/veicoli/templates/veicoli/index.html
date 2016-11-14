@@ -15,10 +15,12 @@
     {% block operation_content %}
     <div class="container">
         <div class="u-full-width">
-        {% if expenses_list %}
+        {% if event_list %}
             <table class="u-full-width">
             <thead>
                 <tr>
+                    <th>vehicle</th>
+                    <th>event type</th>
                     <th>account</th>
                     <th>date</th>
                     <th>description</th>
@@ -26,12 +28,14 @@
                 </tr>
             </thead>
             <tbody>
-            {% for expense in expenses_list %}
+            {% for event in event_list %}
                 <tr>
-                    <td>{{ expense.account.name }}</td>
-                    <td>{{ expense.date }}</td>
-                    <td><a href="{% url 'veicoli:detail' expense.id %}">{{ expense.description }}</a></td>
-                    <td class="s-text-right">{{ expense.amount }}</td>
+                    <td>{{ event.vehicle.name }}</td>
+                    <td>{{ event.vevent.name }}</td>
+                    <td>{{ event.expense.account.name }}</td>
+                    <td>{{ event.expense.date }}</td>
+                    <td><a href="{% url 'veicoli:detail' event.expense.id %}">{{ event.expense.description }}</a></td>
+                    <td class="s-text-right">{{ event.expense.amount }}</td>
                     <!-- <td style="text-align:right" >{{ expense.amount }}</td> -->
                 </tr>
             {% endfor %}
