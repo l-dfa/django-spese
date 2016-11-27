@@ -7,4 +7,5 @@ from django.contrib.auth.decorators import login_required
 @login_required(login_url="login/")
 def home(request):
     # return HttpResponse("Hello, world. You're at the servizi index.")
-    return render(request, 'home.html')
+    user = request.user
+    return render(request, 'home.html', { 'user': user} )

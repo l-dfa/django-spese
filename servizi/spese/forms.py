@@ -9,7 +9,7 @@ from .models import Expense
 class ExpenseForm(forms.ModelForm):
     class Meta:
         model = Expense
-        fields = ( 'date', 'description', 'amount', )
+        fields = ( 'work_cost_type', 'date', 'description', 'amount', )
         # widgets = {
         #     'tags': forms.HiddenInput(),
         # }

@@ -7,8 +7,7 @@
                 <ul>
                    <li> <a href="{% url 'spese:add' %}">add</a> </li>
                    <li> <a href="{% url 'spese:transfer_funds' %}">transfer funds</a> </li>
-                   <li> <a href="{% url 'spese:balance' %}">accounts balance</a> </li>
-                   <li> <a href="{% url 'spese:tags_balance' %}">tags balance</a> </li>
+                   <li> <a href="{% url 'spese:balance' %}">reports</a> </li>
                 </ul>
             </nav>
         </div>
@@ -23,6 +22,7 @@
             <thead>
                 <tr>
                     <th>account</th>
+                    <th>wrk cost type</th>
                     <th>date</th>
                     <th>description</th>
                     <th>amount</th>
@@ -32,6 +32,7 @@
             {% for expense in expenses_list %}
                 <tr>
                     <td>{{ expense.account.name }}</td>
+                    <td>{{ expense.work_cost_type.name }}</td>
                     <td>{{ expense.date }}</td>
                     <td><a href="{% url 'spese:detail' expense.id %}">{{ expense.description }}</a></td>
                     <td class="s-text-right">{{ expense.amount }}</td>

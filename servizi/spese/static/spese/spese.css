@@ -2,9 +2,20 @@
 .s-text-right{
     text-align: right;
 }
+.last_tr{
+    background-color: AliceBlue;
+    font-style: italic;
+}
+table {
+    border-spacing: 0px;
+    line-height: 0.9;
+}
+.table_balance{
+    margin-top: 2em;
+}
 /* body */
 h1 {
-    font-size: 3rem;
+    font-size: 2.5rem;
     margin-bottom: 1rem;
 }
 /* form */

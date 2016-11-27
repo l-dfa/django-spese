@@ -50,10 +50,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 # django models
+from django.db import transaction
 from django.db.models import Sum
+from django.db.models import Q
 
 # spese & taggit
-from .models import Expense, Account
+from .models import Expense, Account, WCType, TransferFund
 from .forms import ExpenseForm, TransferFundsForm
 from .utils import get_accounts
 from taggit.models import Tag
@@ -123,10 +125,9 @@ def add(request):
                                })
 
 @login_required(login_url="/login/")
+@transaction.atomic
 def transfer_funds(request):
-    '''
-    add transfer funds 
-    '''
+    '''     add transfer funds     '''
     page_identification = 'Spese: new transfer funds'
     account_choices = get_accounts(request.user)
     if not account_choices or len(account_choices) < 2:
@@ -135,27 +136,38 @@ def transfer_funds(request):
         messages.error(request, msg)
         return HttpResponseRedirect(reverse('spese:index'))
     account_selected = None
+
     if request.method == "POST":
         form = TransferFundsForm(request.POST, custom_choices=account_choices)
         if form.is_valid():
             try:
-                ### TRACE ###                   pdb.set_trace()
+                ### TRACE ###                    pdb.set_trace()
                 tf_source_id = int(form['tf_source'].value())
                 tf_destination_id = int(form['tf_destination'].value())
                 expense = form.save(commit=False)
                 expense.user = request.user
                 expense.account = Account.objects.get(id=tf_source_id)
                 expense.save()                                           # setting source record id
-                tags = ['transfer_funds']
-                expense.tags.set(*tags, clear=True)                      # (this needs record id)
+                source_id = expense.pk
+                # tags = ['transfer_funds']
+                # expense.tags.set(*tags, clear=True)                      # (this needs record id)
                 expense.save()                                           # this is the complete source record, with tag
                 expense.account = Account.objects.get(id=tf_destination_id)
                 expense.amount = -expense.amount
                 expense.pk = None                                        # https://docs.djangoproject.com/en/1.8/topics/db/queries/#copying-model-instances
                 expense.save()                                           # setting destination id
-                expense.tags.set(*tags, clear=True)
-                expense.save()                                           # and this is the destination record
-                msg =  'success transferring {} funds for user {}'.format(expense.amount, expense.user.username)
+                # expense.tags.set(*tags, clear=True)
+                # expense.save()                                           # and this is the destination record
+                destination_id = expense.pk
+                tfr = TransferFund()
+                tfr.source = Expense.objects.get(id=source_id)
+                tfr.destination = Expense.objects.get(id=destination_id)
+                tfr.save()
+                msg =  '{}: success transferring {} funds from {} to {}'.format( expense.user.username,
+                                                                                 expense.amount,
+                                                                                 tfr.source.account.name,
+                                                                                 tfr.destination.account.name
+                                                                               )
                 log.info(msg)
                 messages.success(request, msg)
                 pass
@@ -188,67 +200,6 @@ def index(request):
                                                 }
                  )
     
-    
-class RepoItem(object):
-    def __init__(self, name, positive, negative, balance):
-        self.name = name
-        self.positive = positive
-        self.negative = negative
-        self.balance = balance
-
-    def __str__(self):
-        """return name"""
-        return self.name
-
-@login_required(login_url='/login/')
-def balance(request):
-    """ for every account calculates positive, negative and balance sums """
-    page_identification = 'Spese: Accounts balance'
-    accounts = Account.objects.filter(users__in=[request.user,])
-    list = []
-    for item in accounts:
-        sum = Expense.objects.filter(user=request.user, account=item, amount__gt=0).aggregate(Sum("amount"))
-        item.positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-        sum = Expense.objects.filter(user=request.user, account=item, amount__lt=0).aggregate(Sum('amount'))
-        item.negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-        item.balance    = item.positive + item.negative
-        ri = RepoItem(item.name, item.positive, item.negative, item.balance)
-        list.append(ri)
-    return render(request, 'spese/balance.html', { 'page_identification': page_identification,
-                                                   'list': list,
-                                                 }
-                 )
-
-
-@login_required(login_url='/login/')
-def tags_balance(request):
-    """ tag by tag calculates positive, negative and balance sums """
-    page_identification = 'Spese: Tags balance'
-    tags = Tag.objects.all()
-    list = []
-    for item in tags:
-        sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__gt=0).aggregate(Sum("amount"))
-        item.positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-        sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__lt=0).aggregate(Sum('amount'))
-        item.negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-        item.balance    = item.positive + item.negative
-        ri = RepoItem(item.name, item.positive, item.negative, item.balance)
-        list.append(ri)
-    ### TRACE ###    pdb.set_trace()
-    wout_tags = Expense.objects.exclude(user=request.user, tags__in=tags)
-    sum = wout_tags.filter(amount__gt=0).aggregate(Sum("amount"))
-    positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-    log.debug("positive sum: {}".format(sum))
-    sum = wout_tags.filter(amount__lt=0).aggregate(Sum("amount"))
-    negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-    log.debug("negative sum: {}".format(sum))
-    ri = RepoItem('without tags', positive, negative, positive + negative)
-    list.insert(0, ri)
-    return render(request, 'spese/balance.html', { 'page_identification': page_identification,
-                                                   'list': list,
-                                                 }
-                 )
-
                  
 @login_required(login_url="login/")
 def detail(request, expense_id):
@@ -268,12 +219,23 @@ def detail(request, expense_id):
 
                               
 @login_required(login_url="/login/")
+@transaction.atomic
 def change(request, expense_id):
+    ''' SVILUPPO il tranfer funds non funziona. VERIFICA:
+        - transfer fund: il cambio di account viene impedito
+    '''
     expense = get_object_or_404(Expense, pk=expense_id)
     page_identification = 'Spese: edit expense detail'
     accounts = Account.objects.filter(users=request.user)
     account_selected = expense.account.pk
     tags_selected = expense.tags.names
+    
+    ### TRACE ###    pdb.set_trace()
+    other_expense = transfer_fund_get_companion_expense(expense)
+
+    id = expense.id
+    oid = other_expense.id if other_expense else None
+        
     if request.method == "POST":
         form = ExpenseForm(request.POST, instance=expense)
         account_selected = int(request.POST['account'])
@@ -281,11 +243,20 @@ def change(request, expense_id):
         if form.is_valid():
             try:
                 expense = form.save(commit=False)
-                expense.account = Account.objects.get(id=account_selected)
+                if not other_expense:  expense.account = Account.objects.get(id=account_selected)
                 expense.save()
                 expense.tags.set(*tags_selected, clear=True)
                 expense.save()
-                msg = "success modifying expense id {} for user {}".format(expense.id, expense.user.username)
+                if other_expense:
+                    expense.id = other_expense.id
+                    expense.account = other_expense.account
+                    expense.amount = - expense.amount
+                    expense.save()
+                    expense.tags.set(*tags_selected, clear=True)
+                    expense.save()
+                msg = "{}: success modifying expense id {}{}".format( request.user.username, id,
+                                                                     " (and companion {})".format(oid) if oid else ""
+                                                                   )
                 log.info(msg)
                 messages.success(request, msg)
             except:
@@ -299,6 +270,9 @@ def change(request, expense_id):
     else:
         form = ExpenseForm(instance=expense)
     alltags = Tag.objects.all()
+    if  other_expense:
+        messages.info(request, "warning: this is a transfer fund, these changes will affect also its companion")
+        messages.info(request, "warning: this is a transfer fund, changes to account will not be accepted")
     return render(request, 'spese/add.html', { 'page_identification': page_identification,
                               'operation': 'edit',
                               'form': form,
@@ -310,11 +284,18 @@ def change(request, expense_id):
 
                               
 @login_required(login_url="/login/")
+@transaction.atomic
 def delete(request, expense_id):
     expense = get_object_or_404(Expense, pk=expense_id)
+    other_expense = transfer_fund_get_companion_expense(expense)
+    id = expense.id
+    oid = other_expense.id if other_expense else None
     try:
         expense.delete()
-        msg = "success deleting expense id {} for user {}".format(expense_id, request.user.username)
+        if other_expense: other_expense.delete()
+        msg = "{}: success deleting expense id {}{}".format( request.user.username, id,
+                                                             " (and companion {})".format(oid) if oid else ""
+                                                           )
         log.info(msg)
         messages.success(request, msg)
     except:
@@ -324,3 +305,118 @@ def delete(request, expense_id):
     return HttpResponseRedirect(reverse('spese:index'))
 
     
+def transfer_fund_get_companion_expense(expense):
+    ''' if expense is a transfer fund, return the "companion" expense '''
+    other_expense = None
+    tf = TransferFund.objects.filter(source=expense)
+    if tf:
+        other_expense = tf[0].destination
+    else:
+        tf = TransferFund.objects.filter(destination=expense)
+        if tf: other_expense = tf[0].source
+    return other_expense
+
+
+class RepoItem(object):
+    def __init__(self, name, positive, negative, balance):
+        self.name = name
+        self.positive = positive
+        self.negative = negative
+        self.balance = balance
+
+    def __str__(self):
+        """return name"""
+        return self.name
+
+
+@login_required(login_url='/login/')
+def balance(request):
+    """ calculates positive, negative and balance sums
+        for accounts, tags
+    """
+    page_identification = 'Spese: Reports'
+    list_accounts = repo_accounts(request)
+    list_tags = repo_tags(request)
+    list_wcts = repo_work_cost_types(request)
+    return render(request, 'spese/balance.html', { 'page_identification': page_identification,
+                                                   'list_accounts': list_accounts,
+                                                   'list_tags': list_tags,
+                                                   'list_wcts': list_wcts,
+                                                 }
+                 )
+
+                 
+def repo_accounts(request):
+    accounts = Account.objects.filter(users__in=[request.user,])
+    list_accounts = []
+    total_in  = 0
+    total_out = 0
+    for item in accounts:
+        sum = Expense.objects.filter(user=request.user, account=item, amount__gt=0).aggregate(Sum("amount"))
+        item.positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        sum = Expense.objects.filter(user=request.user, account=item, amount__lt=0).aggregate(Sum('amount'))
+        item.negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        item.balance    = item.positive + item.negative
+        ri = RepoItem(item.name, item.positive, item.negative, item.balance)
+        total_in  += item.positive
+        total_out += item.negative
+        list_accounts.append(ri)
+    rt = RepoItem('totals', total_in, total_out, total_in + total_out)
+    list_accounts.append(rt)
+    return list_accounts
+
+    
+@login_required(login_url='/login/')
+def repo_work_cost_types(request):
+    """ for every work cost type calculates positive, negative and balance sums """
+    wcts = WCType.objects.all()
+    list_wcts = []
+    total_in  = 0
+    total_out = 0
+    for item in wcts:
+        sum = Expense.objects.filter(user=request.user, work_cost_type=item, amount__gt=0).aggregate(Sum("amount"))
+        item.positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        sum = Expense.objects.filter(user=request.user, work_cost_type=item, amount__lt=0).aggregate(Sum('amount'))
+        item.negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        item.balance    = item.positive + item.negative
+        ri = RepoItem(item.name, item.positive, item.negative, item.balance)
+        total_in  += item.positive
+        total_out += item.negative
+        list_wcts.append(ri)
+    rt = RepoItem('totals', total_in, total_out, total_in + total_out)
+    list_wcts.append(rt)
+    return list_wcts
+    
+
+def repo_tags(request):
+    """ tag by tag calculates positive, negative and balance sums """
+    tags = Tag.objects.all()
+    list_tags = []
+    total_in  = 0
+    total_out = 0
+    for item in tags:
+        sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__gt=0).aggregate(Sum("amount"))
+        item.positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__lt=0).aggregate(Sum('amount'))
+        item.negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        item.balance    = item.positive + item.negative
+        ri = RepoItem(item.name, item.positive, item.negative, item.balance)
+        total_in += item.positive
+        total_out += item.negative
+        list_tags.append(ri)
+    ### TRACE ###    pdb.set_trace()
+    wout_tags = Expense.objects.exclude(user=request.user, tags__in=tags)
+    sum = wout_tags.filter(amount__gt=0).aggregate(Sum("amount"))
+    positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+    log.debug("positive sum: {}".format(sum))
+    sum = wout_tags.filter(amount__lt=0).aggregate(Sum("amount"))
+    negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+    log.debug("negative sum: {}".format(sum))
+    total_in += item.positive
+    total_out += item.negative
+    ri = RepoItem('without tags', positive, negative, positive + negative)
+    list_tags.insert(0, ri)
+    rt = RepoItem('totals', total_in, total_out, total_in + total_out)
+    list_tags.append(rt)
+    return list_tags
+

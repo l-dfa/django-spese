@@ -1,4 +1,5 @@
 {% extends 'spese/base_spese.html' %}
+{% load verbose_names %}
     
     {% block operations %}
     <div class="container">
@@ -19,12 +20,15 @@
     <div class="container">
         <div class="u-full-width">
         <div class="expense">
-            <p>Payed: {{ expense.account.name }} </p>
-            <p>on: {{ expense.date }} </p>
-            <p>{{ expense.description }} </p>
-            <p>amount: {{ expense.amount }} </p>
+            <p>{% get_verbose_field_name expense "account" %}: {{ expense.account.name }}</p>
+            {% if expense.work_cost_type %}
+                <p>{% get_verbose_field_name expense "work_cost_type" %}: {{ expense.work_cost_type.name }} </p>
+            {% endif %}
+            <p>{% get_verbose_field_name expense "date" %}: {{ expense.date }} </p>
+            <p>{% get_verbose_field_name expense "description" %}: {{ expense.description }} </p>
+            <p>{% get_verbose_field_name expense "amount" %}: {{ expense.amount }} </p>
             {% if expense.tags.count > 0 %}
-                <ul> Type of expense: 
+                <ul> {% get_verbose_field_name expense "tags" %}: 
                 {% for tag in expense.tags.names %}
                     <li class="label-expense-type"> {{ tag }} </li>&nbsp
                 {% endfor %}
