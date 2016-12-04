@@ -40,7 +40,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 
 # django forms
-from django.forms import modelform_factory
+from django.forms import modelform_factory, HiddenInput
 from django.utils import timezone
 # from django.core.exceptions import ValidationError
 # from django.utils.datastructures import MultiValueDictKeyError
@@ -184,6 +184,7 @@ def transfer_funds(request):
                                      'description': 'transferring funds',
                                      'date': timezone.now(),
                                  })
+        form.fields['work_cost_type'].widget = HiddenInput()
     return render(request, 'spese/transfer_funds.html', {'page_identification': page_identification,
                                                          'operation': 'add',
                                                          'form': form,
@@ -335,27 +336,45 @@ def balance(request):
         for accounts, tags
     """
     page_identification = 'Spese: Reports'
-    list_accounts = repo_accounts(request)
-    list_tags = repo_tags(request)
+    list_external_flow_by_account = repo_accounts(request)
+    list_internal_flow_by_account = repo_accounts(request, external = False)
+    list_external_flow_by_tags = repo_tags(request)
+    list_internal_flow_by_tags = repo_tags(request, external = False)
     list_wcts = repo_work_cost_types(request)
     return render(request, 'spese/balance.html', { 'page_identification': page_identification,
-                                                   'list_accounts': list_accounts,
-                                                   'list_tags': list_tags,
+                                                   'list_external_flow_by_account': list_external_flow_by_account,
+                                                   'list_internal_flow_by_account': list_internal_flow_by_account,
+                                                   'list_external_flow_by_tags': list_external_flow_by_tags,
+                                                   'list_internal_flow_by_tags': list_internal_flow_by_tags,
                                                    'list_wcts': list_wcts,
                                                  }
                  )
 
                  
-def repo_accounts(request):
+@login_required(login_url='/login/')
+def repo_accounts(request, external = True):
+    ''' in and out expense by account,
+            - regarding EXTERNAL world (NOT transfer funds: external == True)
+            - or INTERNAL world (ONLY Transfer Funds: external == False)
+    '''
     accounts = Account.objects.filter(users__in=[request.user,])
     list_accounts = []
     total_in  = 0
     total_out = 0
     for item in accounts:
-        sum = Expense.objects.filter(user=request.user, account=item, amount__gt=0).aggregate(Sum("amount"))
+        tfs = TransferFund.objects.values_list('source', flat=True)
+        tfd = TransferFund.objects.values_list('destination', flat=True)
+        
+        sum = Expense.objects.filter(user=request.user, account=item, amount__gt=0)
+        sum = sum.exclude(pk__in=tfs).exclude(pk__in=tfd) if(external) else sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
+        sum = sum.aggregate(Sum("amount"))
         item.positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-        sum = Expense.objects.filter(user=request.user, account=item, amount__lt=0).aggregate(Sum('amount'))
+        
+        sum = Expense.objects.filter(user=request.user, account=item, amount__lt=0)
+        sum = sum.exclude(pk__in=tfs).exclude(pk__in=tfd) if(external) else sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
+        sum = sum.aggregate(Sum("amount"))
         item.negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+
         item.balance    = item.positive + item.negative
         ri = RepoItem(item.name, item.positive, item.negative, item.balance)
         total_in  += item.positive
@@ -388,17 +407,27 @@ def repo_work_cost_types(request):
     return list_wcts
     
 
-def repo_tags(request):
+@login_required(login_url='/login/')
+def repo_tags(request, external = True):
     """ tag by tag calculates positive, negative and balance sums """
     tags = Tag.objects.all()
     list_tags = []
     total_in  = 0
     total_out = 0
     for item in tags:
-        sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__gt=0).aggregate(Sum("amount"))
+        tfs = TransferFund.objects.values_list('source', flat=True)
+        tfd = TransferFund.objects.values_list('destination', flat=True)
+
+        sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__gt=0)
+        sum = sum.exclude(pk__in=tfs).exclude(pk__in=tfd) if(external) else sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
+        sum = sum.aggregate(Sum("amount"))
         item.positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-        sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__lt=0).aggregate(Sum('amount'))
+
+        sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__lt=0)
+        sum = sum.exclude(pk__in=tfs).exclude(pk__in=tfd) if(external) else sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
+        sum = sum.aggregate(Sum("amount"))
         item.negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+
         item.balance    = item.positive + item.negative
         ri = RepoItem(item.name, item.positive, item.negative, item.balance)
         total_in += item.positive
@@ -406,12 +435,18 @@ def repo_tags(request):
         list_tags.append(ri)
     ### TRACE ###    pdb.set_trace()
     wout_tags = Expense.objects.exclude(user=request.user, tags__in=tags)
-    sum = wout_tags.filter(amount__gt=0).aggregate(Sum("amount"))
+    sum = wout_tags.filter(amount__gt=0)
+    sum = sum.exclude(pk__in=tfs).exclude(pk__in=tfd) if(external) else sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
+    sum = sum.aggregate(Sum("amount"))
     positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
     log.debug("positive sum: {}".format(sum))
-    sum = wout_tags.filter(amount__lt=0).aggregate(Sum("amount"))
+
+    sum = wout_tags.filter(amount__lt=0)
+    sum = sum.exclude(pk__in=tfs).exclude(pk__in=tfd) if(external) else sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
+    sum = sum.aggregate(Sum("amount"))
     negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
     log.debug("negative sum: {}".format(sum))
+
     total_in += item.positive
     total_out += item.negative
     ri = RepoItem('without tags', positive, negative, positive + negative)

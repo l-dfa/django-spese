@@ -43,7 +43,7 @@ def add(request):
     accounts = Account.objects.filter(users=request.user)
     vehicles = Vehicle.objects.filter(user=request.user)
     vevents = VEvent.objects.all()
-    most_probable_vevent = VEvent.objects.all()[0]
+    most_probable_vevent = vevents[0] if(vevents) else None
     ### TRACE ### pdb.set_trace()
     km__max = Event.objects.all().aggregate(Max('km'))
     last_km = km__max['km__max'] if 'km__max' in km__max else 0
@@ -90,7 +90,7 @@ def add(request):
                     return HttpResponseRedirect(reverse('veicoli:detail', args=(expense.id,)))
     else:
         form1 = ExpenseForm(initial={
-                              'description': most_probable_vevent.description,
+                              'description': most_probable_vevent.description if(most_probable_vevent) else None,
                               'date': timezone.now(),
                               }, prefix='form1')
         form2 = EventForm(initial={
@@ -111,6 +111,99 @@ def add(request):
                                'vevents': vevents,
                                'vevent_selected':  vevent_selected, 
                                })
+
+
+@login_required(login_url="/login/")
+@transaction.atomic
+def change(request, expense_id):
+    ''' SVILUPPO il tranfer funds non funziona. VERIFICA:
+        - transfer fund: il cambio di account viene impedito
+    '''
+    ### TRACE ###    pdb.set_trace()
+    expense = get_object_or_404(Expense, pk=expense_id)
+    event = get_object_or_404(Event, expense__pk=expense_id)
+    page_identification = 'Veicoli: edit expense detail'
+    accounts = Account.objects.filter(users=request.user)
+    account_selected = expense.account.pk
+    vehicles = Vehicle.objects.filter(user=request.user)
+    vehicle_selected = event.vehicle.pk
+    vevents = VEvent.objects.all()                   # possible veicle events
+    vevent_selected  = event.vevent.pk
+    tags_selected    = expense.tags.names
+    
+    ### TRACE ###    pdb.set_trace()
+    # other_expense = transfer_fund_get_companion_expense(expense)
+    # id = expense.id
+    # oid = other_expense.id if other_expense else None
+        
+    if request.method == "POST":
+        form1 = ExpenseForm(request.POST, instance=expense, prefix='form1')
+        form2 =   EventForm(request.POST, instance=event,   prefix='form2')
+        account_selected = int(request.POST['account'])
+        tags_selected    = request.POST.getlist('choice')   # 'getlist' gets [] in case of no choices
+        vehicle_selected = int(request.POST['vehicle'])
+        vevent_selected  = int(request.POST['vevent'])
+
+        if form1.is_valid() and form2.is_valid():
+            try:
+                expense = form1.save(commit=False)
+                # if not other_expense:  expense.account = Account.objects.get(id=account_selected)
+                expense.user = request.user
+                expense.account = Account.objects.get(id=account_selected)
+                expense.save()
+                expense.tags.set(*tags_selected, clear=True)
+                expense.save()
+                # if other_expense:
+                #     expense.id = other_expense.id
+                #     expense.account = other_expense.account
+                #     expense.amount = - expense.amount
+                #     expense.save()
+                #     expense.tags.set(*tags_selected, clear=True)
+                #     expense.save()
+                
+                event = form2.save(commit=False)
+                event.expense = expense
+                event.vehicle = Vehicle.objects.get(id=vehicle_selected)
+                event.vevent = VEvent.objects.get(id=vevent_selected)
+                event.save()
+                
+                msg = "{}: success modifying event {}/{}, for vehicle {}".format( request.user.username,
+                                                                                  event.pk,
+                                                                                  event.expense.pk,
+                                                                                  event.vehicle.name
+                                                                                )
+                log.info(msg)
+                messages.success(request, msg)
+            except:
+                # error: Redisplay the expense change form
+                msg = 'Error <{}> while trying to change event {}/{}'.format(sys.exc_info()[0], event.id, expense.id)
+                log.error(msg)
+                messages.error(request, msg)
+            else:
+                if 'save' in request.POST.keys():
+                    return HttpResponseRedirect(reverse('veicoli:detail', args=(event.expense.id,)))
+    else:
+        form1 = ExpenseForm(instance=expense, prefix='form1')
+        form2 =   EventForm(instance=event,   prefix='form2')
+    alltags = Tag.objects.all()
+    # if  other_expense:
+    #     messages.info(request, "warning: this is a transfer fund, these changes will affect also its companion")
+    #     messages.info(request, "warning: this is a transfer fund, changes to account will not be accepted")
+    return render(request, 'veicoli/add.html', { 'page_identification': page_identification,
+                                'operation': 'edit',
+                                'form1': form1,
+                                'form2': form2,
+                                'accounts': accounts,
+                                'account_selected': account_selected,
+                                'alltags': alltags,
+                                'tags_selected': tags_selected,
+                                'vehicles': vehicles,
+                                'vehicle_selected': vehicle_selected,
+                                'vevents': vevents,
+                                'vevent_selected':  vevent_selected, 
+                              })
+
+                              
 
 @login_required(login_url='/login/')
 def index(request):

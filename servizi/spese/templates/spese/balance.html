@@ -5,18 +5,18 @@
     <div class="container">
         <div class="u-full-width">
             <div class="table_balance">
-                {% if list_accounts %}
+                {% if list_external_flow_by_account %}
                     <table class="u-full-width">
                     <thead>
                         <tr>
-                            <th>account</th>
+                            <th>external flow: account</th>
                             <th class="s-text-right" style="width:20%">in</th>
                             <th class="s-text-right" style="width:20%">out</th>
                             <th class="s-text-right" style="width:20%">balance</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for item in list_accounts %}
+                    {% for item in list_external_flow_by_account %}
                         <tr {% if forloop.last %} class='last_tr'{% endif %} >
                             <td {% if forloop.last %} class='s-text-right'{% endif %} >{{ item.name }}</td>
                             <td class="s-text-right" style="width:20%">{{ item.positive }}</td>
@@ -32,18 +32,72 @@
             </div>
 
             <div class="table_balance">
-                {% if list_tags %}
+                {% if list_internal_flow_by_account %}
                     <table class="u-full-width">
                     <thead>
                         <tr>
-                            <th>tag</th>
+                            <th>internal flow: account</th>
                             <th class="s-text-right" style="width:20%">in</th>
                             <th class="s-text-right" style="width:20%">out</th>
                             <th class="s-text-right" style="width:20%">balance</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for item in list_tags %}
+                    {% for item in list_internal_flow_by_account %}
+                        <tr {% if forloop.last %} class='last_tr'{% endif %} >
+                            <td {% if forloop.last %} class='s-text-right'{% endif %} >{{ item.name }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.positive }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.negative }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.balance }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    </table> 
+                {% else %}
+                    <p>No accounts are available.</p>
+                {% endif %}
+            </div>
+
+            <div class="table_balance">
+                {% if list_external_flow_by_tags %}
+                    <table class="u-full-width">
+                    <thead>
+                        <tr>
+                            <th>external flow: tag</th>
+                            <th class="s-text-right" style="width:20%">in</th>
+                            <th class="s-text-right" style="width:20%">out</th>
+                            <th class="s-text-right" style="width:20%">balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in list_external_flow_by_tags %}
+                        <tr {% if forloop.last %} class='last_tr'{% endif %} >
+                            <td>{{ item.name }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.positive }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.negative }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.balance }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    </table> 
+                {% else %}
+                    <p>No tags are available.</p>
+                {% endif %}
+            </div>
+
+            <div class="table_balance">
+                {% if list_internal_flow_by_tags %}
+                    <table class="u-full-width">
+                    <thead>
+                        <tr>
+                            <th>internal flow: tag</th>
+                            <th class="s-text-right" style="width:20%">in</th>
+                            <th class="s-text-right" style="width:20%">out</th>
+                            <th class="s-text-right" style="width:20%">balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in list_internal_flow_by_tags %}
                         <tr {% if forloop.last %} class='last_tr'{% endif %} >
                             <td>{{ item.name }}</td>
                             <td class="s-text-right" style="width:20%">{{ item.positive }}</td>
