@@ -12,11 +12,9 @@ from spese.models import Expense
 
 class VType(models.Model):
     """ Vehicle type representation
-    
-    :Fields:
-    
-    * ``name``, the source name;
-    * ``users``, who can use this source.
+        :Fields:
+            * ``name``, the vehicle name;
+            * ``description``, the vehicle description;
     """
     
     name = models.CharField(_('name'), max_length=50)
@@ -31,12 +29,10 @@ class VType(models.Model):
         return ("%s" % (self.name))
         
 class VEvent(models.Model):
-    """ Vehicle event representation
-    
-    :Fields:
-    
-    * ``name``, the source name;
-    * ``users``, who can use this source.
+    """ Vehicle event type
+        :Fields:
+            * ``name``, the vehicle event type name;
+            * ``description``, its description.
     """
     
     name = models.CharField(_('name'), max_length=50)
@@ -76,18 +72,19 @@ class Vehicle(models.Model):
         
 class Event(models.Model):
     """ Event representation
-    
-    :Fields:
-    
-    * ``expense``, the source name;
-    * ``vehicle``, who can use this source.
+        :Fields:
+            * ``expense``, link to expense;
+            * ``vehicle``, link to vehicle;
+            * ``vevent``, link to event type;
+            * ``km``, at what distance it occured;
+            * ``unit_cost``, how much costs the unit of the acquired item
     """
     
     expense = models.OneToOneField(Expense)
     vehicle = models.ForeignKey(Vehicle)
     vevent = models.ForeignKey(VEvent)
     km = models.PositiveIntegerField(_('km'))
-    unit_cost = models.DecimalField(_('unit_cost'), max_digits=8, decimal_places=3)
+    unit_cost = models.DecimalField(_('unit_cost'), null=True, max_digits=8, decimal_places=3)
 
     class Meta:
         verbose_name_plural = _('events')

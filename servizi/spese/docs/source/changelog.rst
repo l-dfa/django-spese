@@ -3,6 +3,18 @@
 Changelog
 =========
 
+Version 0.4
+-------------
+
+* Documents updated;
+* Added *Work Cost Types*;
+* Now tranfer funds are related;
+* Added a first version of expense reports (by account, 
+  tags, work cost type);
+* Added a first version of *django-veicoli* app;
+* In case of operation regarding more tables, using
+  explict transaction management.
+
 Version 0.3
 -------------
 

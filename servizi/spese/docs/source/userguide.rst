@@ -41,11 +41,15 @@ Clarified the *personal* term implications, let's see the
 An expense means *money* to buy something. Where is money from?
 
 Here we are at the **third concept**: in *django-spese* a source
-of money is called  *account*.
+of money is called  (bank) *account*.
 
 An *account* could be a wallet, or a debit card, or a bank account
 or something else. Every expense is bound to an *account* from where
 money is kept to fulfil it.
+
+Be aware do not confuse this account concept with idea of
+user. In *django-spese* when we speak about *account* we mean
+bank account, **not** user account.
 
 As opposed from everyday world, here an *account* hasn't limit:
 we can draw from it how much money as we wish. Or add to it.
@@ -107,6 +111,10 @@ to a work cost type, the answer is: time. The percentage can vary on time passin
 we can register different values on different time intervals. Yes, incoming tax calculation
 isn't a simple matter in Italy.
 
+Oh! I was forgetting. In case of transfer funds, you cannot assign work cost type to the
+operation. Work cost type is worth about money flow to/from the extern boundary of our
+accounts. Not about internal movements between accounts.
+ 
 Ok. Now our global knowledge about *django-spese* is complete.
 We can start play around.
 
@@ -149,19 +157,19 @@ between different *users*. So the pertinent window looks like below:
 
 .. image:: images/admin-03.svg
 
-Here red ellipse remember us the possibility to bind a single source 
+Here red ellipse remember us the possibility to bind a single account 
 to more users.
 
-It's important bind the source to the correct user, and be aware
-to share sources that are truly shared between different users.
+It's important bind the account to the correct user, and be aware
+to share accounts that are truly shared between different users.
 I.e. let's to keep again the previous picture. There we have
-*cache* shared between *user1* and *user2*. This means that this
-two users have the **same cache**: see it as a shared wallet!
+*wallet* shared between *user1* and *user2*. This means that this
+two users have the **same wallet**: see it as a shared wallet!
 
 If I wish model a situation where *user1* and *user2* have different 
 wallets, I must create them (for sake of example let's
-say *cache1* and *cache2*) and assign either of them to a single user
-(to complete the example: bind *cache1* to *user1* and *cache2* to *user2*).
+say *wallet1* and *wallet2*) and assign either of them to a single user
+(to complete the example: bind *wallet1* to *user1* and *wallet2* to *user2*).
 
 A last word about *tags*. These are the folders used to classify our expense.
 So I urge you to create a tag set limited in size, that fit well with 
@@ -193,9 +201,10 @@ We are concerned about the *django-spese* menu. At *home* we have
 two voices:
 
 * *add* adding us a new expense;
-* *transfer funds* to realize a transfer of money from one source to another.
+* *transfer funds* to realize a transfer of money from one source to another;
+* *reports* to show a summary about our tracked accounts and tags.
 
-If we click on an expense desciption, we'll get its detail:
+If we click on an expense description, we'll get its detail:
 
 .. image:: images/use-02.svg
 
@@ -214,13 +223,17 @@ a form to input an entirely new expense:
 
 .. image:: images/use-03.svg
 
-Here we can select the desidered *source*, write the date, description
+Here we can select the desidered *account*, write the date, description
 and amount. And we can choose between the showned tags to categorize
 our expense.
 
 When we are done, we can save and return to *home*, using the 
 *save* button. Or we can save and add again a new expense, using the
 *save & continue* button.
+
+Using *save & continue* give us the current form already completed
+with the previous fields values. This is confortable in case of
+entry of more expenses regarding same account, close dates, same tags ...
 
 To leave the form without creating a new expense, simply use the 
 browser's *back* button, or visit the *home* URL.
@@ -239,7 +252,8 @@ a form to change the expense characteristics:
 In this form we can change whatever we wish. To save changes, we
 must push the *save* button, moving us to detail again. Or we can
 choose the *save & continue* button, that keep us on the current
-change form.
+change form: just in case we wish change more fields values but 
+one at time.
 
 Toggling expense
 ~~~~~~~~~~~~~~~~
@@ -272,7 +286,7 @@ Transfer funds
 ~~~~~~~~~~~~~~
 
 At *home*, selecting the *django-spese* menu voice *transfer funds* 
-we obtain the shortcut to transfer money from a *source* to
+we obtain the shortcut to transfer money from an *account* to
 another:
 
 .. image:: images/use-05.png
@@ -280,3 +294,38 @@ another:
 As usual: we must compile the form with the appropiate values. Then
 choosing the *save* button we get the desired operation: the *amount*
 is subtracted from *tranfer source* and added to *transfer destination*.
+
+Reports
+~~~~~~~~
+
+At *home*, selecting the *django-spese* menu voice *reports* 
+we obtain a summary about the current situation of the observed accounts, tags, 
+and work cost types:
+
+.. image:: images/use-06.png
+
+Here we wish spend a word about the overall layout of this reports.
+
+First of all: the window has three tables:
+
+* about *accounts*;
+* about *tags*;
+* and about *work cost types*.
+
+Every row of *accounts* and *tags* is divided in six columns.
+From left to right:
+
+* the item name;
+* the sum of the income *from the extern*, i.e. not from transfer funds operations;
+* the sum of *internal* income, i.e. from transfer funds operations;
+* the sum of *internal* outcome, i.e. transfer funds operations to other accounts;
+* the sum of outcome *to the extern*, i.e. not transfer funds to other accounts;
+* and finally the sum of hte previous quantities: the balance of the row.
+
+In case of work cost types, are missing the columns about transfer funds because here 
+we observe money flow from/to our system boundaries.
+
+The last row of every table shows the relative column grand total, with the exceptions
+of the transfer funds columns that aren't calculated.
+
+

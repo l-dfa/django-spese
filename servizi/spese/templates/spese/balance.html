@@ -9,7 +9,7 @@
                     <table class="u-full-width">
                     <thead>
                         <tr>
-                            <th>external flow: account</th>
+                            <th>account</th>
                             <th class="s-text-right" style="width:13.4%">ext-in</th>
                             <th class="s-text-right" style="width:13.4%">int-in</th>
                             <th class="s-text-right" style="width:13.4%">int-out</th>
@@ -22,8 +22,13 @@
                         <tr {% if forloop.last %} class='last_tr'{% endif %} >
                             <td {% if forloop.last %} class='s-text-right'{% endif %} >{{ item.name }}</td>
                             <td class="s-text-right" style="width:13.4%">{{ item.positive }}</td>
-                            <td class="s-text-right" style="width:13.4%">{{ item.int_positive }}</td>
-                            <td class="s-text-right" style="width:13.4%">{{ item.int_negative }}</td>
+                            {% if forloop.last %}
+                                <td class="s-text-right" style="width:13.4%"> </td>
+                                <td class="s-text-right" style="width:13.4%"> </td>
+                            {% else %}
+                                <td class="s-text-right" style="width:13.4%">{{ item.int_positive }}</td>
+                                <td class="s-text-right" style="width:13.4%">{{ item.int_negative }}</td>
+                            {% endif %}
                             <td class="s-text-right" style="width:13.4%">{{ item.negative }}</td>
                             <td class="s-text-right" style="width:13.4%">{{ item.balance }}</td>
                         </tr>
@@ -40,7 +45,7 @@
                     <table class="u-full-width">
                     <thead>
                         <tr>
-                            <th>external flow: tag</th>
+                            <th>tag</th>
                             <th class="s-text-right" style="width:13.4%">ext-in</th>
                             <th class="s-text-right" style="width:13.4%">int-in</th>
                             <th class="s-text-right" style="width:13.4%">int-out</th>
@@ -53,8 +58,13 @@
                         <tr {% if forloop.last %} class='last_tr'{% endif %} >
                             <td>{{ item.name }}</td>
                             <td class="s-text-right" style="width:13.4%">{{ item.positive }}</td>
-                            <td class="s-text-right" style="width:13.4%">{{ item.int_positive }}</td>
-                            <td class="s-text-right" style="width:13.4%">{{ item.int_negative }}</td>
+                            {% if forloop.last %}
+                                <td class="s-text-right" style="width:13.4%"> </td>
+                                <td class="s-text-right" style="width:13.4%"> </td>
+                            {% else %}
+                                <td class="s-text-right" style="width:13.4%">{{ item.int_positive }}</td>
+                                <td class="s-text-right" style="width:13.4%">{{ item.int_negative }}</td>
+                            {% endif %}
                             <td class="s-text-right" style="width:13.4%">{{ item.negative }}</td>
                             <td class="s-text-right" style="width:13.4%">{{ item.balance }}</td>
                         </tr>
