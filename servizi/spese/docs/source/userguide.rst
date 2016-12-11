@@ -1,7 +1,7 @@
 .. _userguide:
 
 User Guide
-=========
+==========
 
 Here we are going to talk about how use *django-spese* 
 to register our personal expenses.
@@ -41,24 +41,26 @@ Clarified the *personal* term implications, let's see the
 An expense means *money* to buy something. Where is money from?
 
 Here we are at the **third concept**: in *django-spese* a source
-of money is called, well, *source* :)
+of money is called  *account*.
 
-A source could be a wallet, or a credit card, or a bank account
-or something else. Every expense is bound to a source from where
+An *account* could be a wallet, or a debit card, or a bank account
+or something else. Every expense is bound to an *account* from where
 money is kept to fulfil it.
 
-As opposed from everyday world, here a source hasn't limit:
+As opposed from everyday world, here an *account* hasn't limit:
 we can draw from it how much money as we wish. Or add to it.
 
 Add? Yes, add. Why we could not add money instead of remove it?
-**Forth concept**: write positive numbers to add money to a source, 
-and negative numbers to subtract money from the source. *django-money*
+**Forth concept**: write positive numbers to add money to an *account*, 
+and negative numbers to subtract money from it. *django-money*
 don't know how to subtract money, it knows only how to add it :)
 
-**Fifth concept**: a *source* is bound to one, or more, *user(s)*.
+**Fifth concept**: an *account* is bound to one, or more, *user(s)*.
 
-This means that every *user* could have one or more *source(s)*. But
-is also possible a *source* could be *shared* between two or more *users*.
+This means that every *user* could have one or more *account(s)*. But
+is also possible an *account* could be **shared** between two or more *users*.
+(Yes, I know. This is a very strange concept. Only the few married men can
+understand it :-)
 
 **Sixth concept**: every expense could be classified using one or more *tag(s)*.
 
@@ -66,27 +68,44 @@ For example, maybe I wish classify my holidays expenses using the tag
 *freetime*, and the work expenses assigning them the *work* tag.
 
 A last concept and we're done. **Seventh concept**: it is possible
-tranfer money from one *source* to another. We call this kind of operation:
+tranfer money from one *account* to another. We call this kind of operation:
 *tranfer funds*.
 
-It must be clear: *transfer funds* is a shortcut to save time. We could
-subtract (remember: use a negative number) from a *source* and add the
-same (positive) number to another *source*. But it's a waste
+Using *transfer funds* we can save time. We could
+subtract (remember: use a negative number) from an *account* and add the
+same (positive) number to another *account*. But it's a waste
 of time and it's even a bit error prone: it isn't so difficult write
 one of the two numbers with one more, or less, digit.
+
+And, without *transfer funds*, if we need to change an amount, we must 
+remember to change it in two (unrelated) expenses. *transfer funds* 
+links the two exepenses, and if we change one, *django-spese* will change
+accordly the other.
 
 Since a picture is worth a thousand words, to summarize, please look at
 the figure below, which sum up the relationships between the exposed concepts.
 
 .. image:: images/ER.svg
 
-As we can see, the most complex relations are between *source* and *user*, and
+As we can see, the most complex relations are between *account* and *user*, and
 between *tag* and *expense*. Technically speaking, these are m:n relationships.
-Every *source* could belong to more *users* and vice versa. Similarly for *tag*
+Every *account* could belong to more *users* and vice versa. Similarly for *tag*
 and *expense*.
 
 The relationships *user / expense* and *source /expense* are much simpler: one *user*
 own more *expenses*, not viceversa. So between *source* and *expense*.
+
+Oh, I haven't quoted the *work cost type*. Have I? Please, be patient. Over the
+seventh I tend to confuse between ordinals. So ... I explain it now. In case 
+you are a professional, may be you wish to register work's expenses.
+If so, you can classify this kind of costs assigning an appropriate type.
+*WCType* means Work Cost Type and register these types. And *PercentDeduction*
+register what percent can be deduct from income tax calculation about a type.
+
+In case you are asking yourself why use records to register a percent deduction associated
+to a work cost type, the answer is: time. The percentage can vary on time passing, and
+we can register different values on different time intervals. Yes, incoming tax calculation
+isn't a simple matter in Italy.
 
 Ok. Now our global knowledge about *django-spese* is complete.
 We can start play around.
@@ -104,10 +123,15 @@ Base administration window looks as below, without the ellipses:
 
 .. image:: images/admin-01.svg
 
-Red ellipses show the most interesting entities for our duties: *user*, *source*
-and *tag*.
+Red ellipses show the most interesting entities for our duties: 
 
-Green ellipses show the shortcuts to add and change the target entity.
+* *user*,
+* *account*,
+* *work cost type*,
+* *percent deduction*,
+* and *tag*.
+
+Green ellipses show the shortcuts to add and change the target records.
 
 User interface is immediate, so I don't explain it in detail. Only, I wish
 underline two points.
@@ -120,7 +144,7 @@ in the picture below.
 
 .. image:: images/admin-02.svg
 
-Second. When working on *sources*, remember: a source could be shared
+Second. When working on *accounts*, remember: an account could be shared
 between different *users*. So the pertinent window looks like below:
 
 .. image:: images/admin-03.svg

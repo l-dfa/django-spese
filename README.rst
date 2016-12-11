@@ -31,11 +31,11 @@ Quick start
         'taggit',
     ]
     
-   and check, spese needs these:
+   and check in ``MIDDLEWARE_CLASSES = [ ... ]``, spese needs these:
    
-     django.contrib.sessions.middleware.SessionMiddleware and
-     django.contrib.messages.middleware.MessageMiddleware
-     in ``MIDDLEWARE_CLASSES = [ ... ]``
+     ``django.contrib.sessions.middleware.SessionMiddleware`` and
+     ``django.contrib.messages.middleware.MessageMiddleware``
+     
 
 3. Include the spese URLconf in your project ``urls.py`` like this::
 
@@ -65,7 +65,7 @@ Quick start
     {% block content %}
     {% endblock %}
 
-   you can copy a ``base.html`` examples from
+   you can copy a ``base.html`` example from
    ``.../env/Lib/site-packages/spese/templates/example/*``   (in windows use backslashes)
 
 6. Run ``python manage.py migrate`` to create the *spese* models and

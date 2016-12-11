@@ -8,7 +8,7 @@ To install *django-spese*, you'll need some prerequisite:
 * first of all you must know how type commands in console mode in
   your system;
 * then, it's important you have some knowledge about how create/configure
-  a Django project and apps;
+  a Django project and app(s);
 * and, last but not least, you'll need to have a copy of
   `Python <https://www.python.org/>`_ version 3.5, or newer, already installed
   in your system.  
@@ -66,7 +66,7 @@ Include the *django-spese* URLconf in your project ``urls.py``. Like this::
 
     from django.conf.urls import include
     ...
-    url(r'^spese/', include('spese.urls')),
+    url(r'^spese/', include('spese.urls', namespace='spese')),
 
 Provide the django login machinery in your project: that is 
 a ``template/login.html`` template, in your project ``url.py`` add::

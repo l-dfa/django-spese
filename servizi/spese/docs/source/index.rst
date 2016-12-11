@@ -21,6 +21,7 @@ Contents:
 
    installation
    userguide
+   veicoli
    changelog
    license
 
