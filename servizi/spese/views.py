@@ -13,6 +13,10 @@
             - repo_tags
 '''
 #{ module history
+#    ldfa@2016.12.12 toggle: + check request user against expense user
+#                    detail: + check request user against expense user
+#                    change: + check request user against expense user
+#                    delete: + check request user against expense user
 #    ldfa@2016.12.06 using transferFund.set, expense.get_companion
 #    ldfa@2016.12.04 using transaction.atomic
 #                    better reporting (splitted external flow from transfer funds)
@@ -80,6 +84,13 @@ from taggit.models import Tag
 def toggle(request, expense_id):
     ''' change amount sign '''
     expense = get_object_or_404(Expense, pk=expense_id)
+    # check expense user == request user, othewise bail out
+    if expense.user != request.user:
+        msg = "{}: access to expense id {} denied".format( request.user.username, expense.pk )
+        log.error(msg)
+        messages.error(request, msg)
+        return HttpResponseRedirect(reverse('spese:index'))
+    
     error = False
     try:
         expense.amount = -expense.amount
@@ -216,6 +227,13 @@ def index(request):
 def detail(request, expense_id):
     #pdb.set_trace()
     expense = get_object_or_404(Expense, pk=expense_id)
+    # check expense user == request user, othewise bail out
+    if expense.user != request.user:
+        msg = "{}: access to expense id {} denied".format( request.user.username, expense.pk )
+        log.error(msg)
+        messages.error(request, msg)
+        return HttpResponseRedirect(reverse('spese:index'))
+    
     page_identification = 'Spese: show expense detail'
     if not expense.user == request.user:
         msg = "expense id {}: wrong user (it's {})".format(expense.id, expense.user.username)
@@ -237,6 +255,13 @@ def change(request, expense_id):
             - changes description, date and amount in companion expense
     '''
     expense = get_object_or_404(Expense, pk=expense_id)
+    # check expense user == request user, othewise bail out
+    if expense.user != request.user:
+        msg = "{}: access to expense id {} denied".format( request.user.username, expense.pk )
+        log.error(msg)
+        messages.error(request, msg)
+        return HttpResponseRedirect(reverse('spese:index'))
+    
     page_identification = 'Spese: edit expense detail'
     accounts = Account.objects.filter(users=request.user)
     account_selected = expense.account.pk
@@ -304,6 +329,13 @@ def delete(request, expense_id):
         destination expense, and record in TransferFund table
     '''
     expense = get_object_or_404(Expense, pk=expense_id)
+    # check expense user == request user, othewise bail out
+    if expense.user != request.user:
+        msg = "{}: access to expense id {} denied".format( request.user.username, expense.pk )
+        log.error(msg)
+        messages.error(request, msg)
+        return HttpResponseRedirect(reverse('spese:index'))
+    
     oid = expense.get_companion_id()
     id = expense.id
     try:

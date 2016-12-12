@@ -1,8 +1,19 @@
 # veicoli/views.py
 ''' app veicoli views
-
-    ldfa @ 2016.11.12 iniziale
+        - add
+        - change
+        - index
+        - detail
 '''
+
+#{ module history
+#    ldfa @ 2016.12.12 change: + transaction.atomic
+#                      change: + check current user against expense user
+#                      detail: + check current user against expense user
+#    ldfa @ 2016.dec   adding change
+#    ldfa @ 2016.11.12 initial
+#}
+
 # python debugging
 import pdb
 import sys
@@ -121,6 +132,13 @@ def change(request, expense_id):
     '''
     ### TRACE ###    pdb.set_trace()
     expense = get_object_or_404(Expense, pk=expense_id)
+    # check expense user == request user, othewise bail out
+    if expense.user != request.user:
+        msg = "{}: access to expense id {} denied".format( request.user.username, expense.pk )
+        log.error(msg)
+        messages.error(request, msg)
+        return HttpResponseRedirect(reverse('veicoli:index'))
+    
     event = get_object_or_404(Event, expense__pk=expense_id)
     page_identification = 'Veicoli: edit expense detail'
     accounts = Account.objects.filter(users=request.user)
@@ -131,11 +149,6 @@ def change(request, expense_id):
     vevent_selected  = event.vevent.pk
     tags_selected    = expense.tags.names
     
-    ### TRACE ###    pdb.set_trace()
-    # other_expense = transfer_fund_get_companion_expense(expense)
-    # id = expense.id
-    # oid = other_expense.id if other_expense else None
-        
     if request.method == "POST":
         form1 = ExpenseForm(request.POST, instance=expense, prefix='form1')
         form2 =   EventForm(request.POST, instance=event,   prefix='form2')
@@ -146,34 +159,27 @@ def change(request, expense_id):
 
         if form1.is_valid() and form2.is_valid():
             try:
-                expense = form1.save(commit=False)
-                # if not other_expense:  expense.account = Account.objects.get(id=account_selected)
-                expense.user = request.user
-                expense.account = Account.objects.get(id=account_selected)
-                expense.save()
-                expense.tags.set(*tags_selected, clear=True)
-                expense.save()
-                # if other_expense:
-                #     expense.id = other_expense.id
-                #     expense.account = other_expense.account
-                #     expense.amount = - expense.amount
-                #     expense.save()
-                #     expense.tags.set(*tags_selected, clear=True)
-                #     expense.save()
-                
-                event = form2.save(commit=False)
-                event.expense = expense
-                event.vehicle = Vehicle.objects.get(id=vehicle_selected)
-                event.vevent = VEvent.objects.get(id=vevent_selected)
-                event.save()
-                
-                msg = "{}: success modifying event {}/{}, for vehicle {}".format( request.user.username,
-                                                                                  event.pk,
-                                                                                  event.expense.pk,
-                                                                                  event.vehicle.name
-                                                                                )
-                log.info(msg)
-                messages.success(request, msg)
+                with transaction.atomic():
+                    expense = form1.save(commit=False)
+                    expense.user = request.user
+                    expense.account = Account.objects.get(id=account_selected)
+                    expense.save()
+                    expense.tags.set(*tags_selected, clear=True)
+                    expense.save()
+                    
+                    event = form2.save(commit=False)
+                    event.expense = expense
+                    event.vehicle = Vehicle.objects.get(id=vehicle_selected)
+                    event.vevent = VEvent.objects.get(id=vevent_selected)
+                    event.save()
+                    
+                    msg = "{}: success modifying event {}/{}, for vehicle {}".format( request.user.username,
+                                                                                      event.pk,
+                                                                                      event.expense.pk,
+                                                                                      event.vehicle.name
+                                                                                    )
+                    log.info(msg)
+                    messages.success(request, msg)
             except:
                 # error: Redisplay the expense change form
                 msg = 'Error <{}> while trying to change event {}/{}'.format(sys.exc_info()[0], event.id, expense.id)
@@ -203,12 +209,11 @@ def change(request, expense_id):
                                 'vevent_selected':  vevent_selected, 
                               })
 
-                              
 
 @login_required(login_url='/login/')
 def index(request):
     page_identification = 'Veicoli'
-    event_expense_list = [event.expense.pk for event in Event.objects.all()]
+    # event_expense_list = [event.expense.pk for event in Event.objects.filter(expense__user=request.user).order_by('-expense__date')]
     event_list = Event.objects.filter(expense__user=request.user).order_by('vehicle', '-expense__date')      #######   SVILUPPO
     ### TRACE ###    pdb.set_trace()
     return render(request, 'veicoli/index.html', {'page_identification': page_identification,
@@ -216,10 +221,18 @@ def index(request):
                                                 }
                  )
 
+                 
 @login_required(login_url="login/")
 def detail(request, expense_id):
     #pdb.set_trace()
     expense = get_object_or_404(Expense, pk=expense_id)
+    # check expense user == request user, othewise bail out
+    if expense.user != request.user:
+        msg = "{}: access to expense id {} denied".format( request.user.username, expense.pk )
+        log.error(msg)
+        messages.error(request, msg)
+        return HttpResponseRedirect(reverse('veicoli:index'))
+    
     event = get_object_or_404(Event, expense=expense_id)
     page_identification = 'Veicoli: show event detail'
     if not expense.user == request.user:
