@@ -20,7 +20,7 @@
     <div class="container">
         <div class="u-full-width">
         <div class="expense">
-            <p>{% get_verbose_field_name expense "account" %}: {{ expense.account.name }}</p>
+            <p>{% get_verbose_field_name expense "account" %}:{{ expense.account.name }}</p>
             {% if expense.work_cost_type %}
                 <p>{% get_verbose_field_name expense "work_cost_type" %}: {{ expense.work_cost_type.name }} </p>
             {% endif %}
