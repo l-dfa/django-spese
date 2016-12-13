@@ -5,7 +5,7 @@ Django-spese
 *Django-spese* is a simple Django app to register personal expenses,
 inspired by `django-expense <https://django-expense.readthedocs.io/en/latest/>`_ .  
 
-Detailed documentation is in the ``docs`` directory.
+Detailed documentation is in `read the docs <http://django-spese.readthedocs.io/en/latest/>`_ .
 
 Quick start
 -----------
