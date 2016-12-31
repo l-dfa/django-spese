@@ -46,27 +46,18 @@
                     <thead>
                         <tr>
                             <th>tag</th>
-                            <th class="s-text-right" style="width:13.4%">ext-in</th>
-                            <th class="s-text-right" style="width:13.4%">int-in</th>
-                            <th class="s-text-right" style="width:13.4%">int-out</th>
-                            <th class="s-text-right" style="width:13.4%">ext-out</th>
-                            <th class="s-text-right" style="width:13.4%">balance</th>
+                            <th class="s-text-right" style="width:20%">in</th>
+                            <th class="s-text-right" style="width:20%">out</th>
+                            <th class="s-text-right" style="width:20%">balance</th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for item in list_external_flow_by_tags %}
                         <tr {% if forloop.last %} class='last_tr'{% endif %} >
                             <td>{{ item.name }}</td>
-                            <td class="s-text-right" style="width:13.4%">{{ item.positive }}</td>
-                            {% if forloop.last %}
-                                <td class="s-text-right" style="width:13.4%"> </td>
-                                <td class="s-text-right" style="width:13.4%"> </td>
-                            {% else %}
-                                <td class="s-text-right" style="width:13.4%">{{ item.int_positive }}</td>
-                                <td class="s-text-right" style="width:13.4%">{{ item.int_negative }}</td>
-                            {% endif %}
-                            <td class="s-text-right" style="width:13.4%">{{ item.negative }}</td>
-                            <td class="s-text-right" style="width:13.4%">{{ item.balance }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.positive }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.negative }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.balance }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

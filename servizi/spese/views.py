@@ -470,6 +470,7 @@ def repo_tags(request, external = True):
         tfd = TransferFund.objects.values_list('destination', flat=True)
 
         # get tagged income (>0)
+        ### TRACE ### pdb.set_trace()
         start_sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__gt=0)
         
         # external income
@@ -477,26 +478,28 @@ def repo_tags(request, external = True):
         sum = sum.aggregate(Sum("amount"))
         item.positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
 
-        # internal income
-        sum = start_sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
-        sum = sum.aggregate(Sum("amount"))
-        item.int_positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        # # internal income
+        # sum = start_sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
+        # sum = sum.aggregate(Sum("amount"))
+        # item.int_positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
 
         # get tagged outcome
-        sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__lt=0)
+        start_sum = Expense.objects.filter(user=request.user, tags__in=[item,], amount__lt=0)
         
-        # internal tagged outcome
-        sum = start_sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
-        sum = sum.aggregate(Sum("amount"))
-        item.int_negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+        # # internal tagged outcome
+        # sum = start_sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
+        # sum = sum.aggregate(Sum("amount"))
+        # item.int_negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
 
         # external tagged outcome
         sum = start_sum.exclude(pk__in=tfs).exclude(pk__in=tfd)
         sum = sum.aggregate(Sum("amount"))
         item.negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
                 
-        item.balance    = item.positive + item.int_positive + item.int_negative + item.negative
-        ri = RepoItem(item.name, item.positive, item.negative, item.balance, int_positive=item.int_positive, int_negative=item.int_negative)
+        # item.balance    = item.positive + item.int_positive + item.int_negative + item.negative
+        # ri = RepoItem(item.name, item.positive, item.negative, item.balance, int_positive=item.int_positive, int_negative=item.int_negative)
+        item.balance    = item.positive + item.negative
+        ri = RepoItem(item.name, item.positive, item.negative, item.balance)
         total_in  += item.positive
         total_out += item.negative
         list_tags.append(ri)
@@ -512,20 +515,20 @@ def repo_tags(request, external = True):
     positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
     log.debug("positive sum: {}".format(sum))
 
-    # internal not tagged income
-    sum = start_sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
-    sum = sum.aggregate(Sum("amount"))
-    int_positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-    log.debug("internal positive sum: {}".format(sum))
+    # # internal not tagged income
+    # sum = start_sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
+    # sum = sum.aggregate(Sum("amount"))
+    # int_positive = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+    # log.debug("internal positive sum: {}".format(sum))
     
     # get not tagged outcome
     start_sum = wout_tags.filter(amount__lt=0)
     
-    # internal not tagged outcome
-    sum = start_sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
-    sum = sum.aggregate(Sum("amount"))
-    int_negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
-    log.debug("internal negative sum: {}".format(sum))
+    # # internal not tagged outcome
+    # sum = start_sum.filter(Q(pk__in=tfs) | Q(pk__in=tfd))
+    # sum = sum.aggregate(Sum("amount"))
+    # int_negative = sum["amount__sum"] if sum and sum["amount__sum"] else 0
+    # log.debug("internal negative sum: {}".format(sum))
 
     # external not tagged outcome
     sum = start_sum.exclude(pk__in=tfs).exclude(pk__in=tfd)
@@ -535,8 +538,10 @@ def repo_tags(request, external = True):
     
     total_in += positive
     total_out += negative
-    balance = positive + int_positive + int_negative + negative
-    ri = RepoItem('without tags', positive, negative, balance, int_positive=int_positive, int_negative=int_negative )
+    # balance = positive + int_positive + int_negative + negative
+    # ri = RepoItem('without tags', positive, negative, balance, int_positive=int_positive, int_negative=int_negative )
+    balance = positive + negative
+    ri = RepoItem('without tags', positive, negative, balance )
     list_tags.insert(0, ri)
     rt = RepoItem('totals', total_in, total_out, total_in + total_out)
     list_tags.append(rt)
