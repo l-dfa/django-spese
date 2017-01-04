@@ -76,6 +76,7 @@ from django.db.models import Q
 # spese & taggit
 from .models import Expense, Account, WCType, TransferFund
 from .forms import ExpenseForm, TransferFundsForm
+from .filters import ExpenseFilter
 from .utils import get_accounts
 from taggit.models import Tag
 
@@ -213,15 +214,25 @@ def transfer_funds(request):
                  )
 
                               
+# @login_required(login_url='/login/')
+# def index(request):
+#     page_identification = 'Spese'
+#     expenses_list = Expense.objects.filter(user=request.user).order_by('-date')
+#     return render(request, 'spese/index.html', { 'page_identification': page_identification,
+#                                                  'expenses_list': expenses_list,
+#                                                }
+#                  )
+    
+    
 @login_required(login_url='/login/')
 def index(request):
     page_identification = 'Spese'
-    expenses_list = Expense.objects.filter(user=request.user).order_by('-date')
+    e_l = ExpenseFilter(request.GET, queryset=Expense.objects.filter(user=request.user))   # expenses_list
+    ### TRACE ###    pdb.set_trace()
     return render(request, 'spese/index.html', { 'page_identification': page_identification,
-                                                 'expenses_list': expenses_list,
+                                                 'expenses_list': e_l,
                                                }
-                 )
-    
+                 )    
                  
 @login_required(login_url="login/")
 def detail(request, expense_id):
