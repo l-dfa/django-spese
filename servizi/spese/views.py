@@ -13,6 +13,7 @@
             - repo_tags
 '''
 #{ module history
+#    ldfa@2017.01.04 index:  + account & date filters by django-filter
 #    ldfa@2016.12.12 toggle: + check request user against expense user
 #                    detail: + check request user against expense user
 #                    change: + check request user against expense user
@@ -236,7 +237,6 @@ def index(request):
                  
 @login_required(login_url="login/")
 def detail(request, expense_id):
-    #pdb.set_trace()
     expense = get_object_or_404(Expense, pk=expense_id)
     # check expense user == request user, othewise bail out
     if expense.user != request.user:
@@ -246,11 +246,20 @@ def detail(request, expense_id):
         return HttpResponseRedirect(reverse('spese:index'))
     
     page_identification = 'Spese: show expense detail'
-    if not expense.user == request.user:
-        msg = "expense id {}: wrong user (it's {})".format(expense.id, expense.user.username)
-        log.error(msg)
-        messages.error(request, msg)
-        return HttpResponseRedirect(reverse('spese:index'))
+    other_expense = expense.get_companion()   # if expense is a transfer fund, this gets its companion
+    
+    # if not expense.user == request.user:
+    #     msg = "expense id {}: wrong user (it's {})".format(expense.id, expense.user.username)
+    #     log.error(msg)
+    #     messages.error(request, msg)
+    #     return HttpResponseRedirect(reverse('spese:index'))
+    if other_expense:
+        ###TRACE ### pdb.set_trace()
+        other_url = reverse('spese:detail', kwargs={'expense_id': str(other_expense.pk)})
+        messages.info( request,
+                       'this is a transfer fund bound to <a href="{}">this one</a> in "{}" account'.format(other_url, other_expense.account.name),
+                       extra_tags='safe'
+                     )
     return render(request, 'spese/detail.html', {'page_identification': page_identification,
                                                  'operation': 'show',
                                                  'expense': expense,
@@ -321,7 +330,7 @@ def change(request, expense_id):
         form = ExpenseForm(instance=expense)
     alltags = Tag.objects.all()
     if  other_expense:
-        messages.info(request, "warning: this is a transfer fund, these changes will affect also its companion")
+        messages.info(request, "warning: this is a transfer fund; these changes will affect also its companion, on {} account".format(other_expense.account.name))
         messages.info(request, "warning: this is a transfer fund, changes to account will not be accepted")
     return render(request, 'spese/add.html', { 'page_identification': page_identification,
                               'operation': 'edit',
