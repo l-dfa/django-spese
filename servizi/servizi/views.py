@@ -9,4 +9,4 @@ from .last_commit_id import commit_id
 def home(request):
     # return HttpResponse("Hello, world. You're at the servizi index.")
     user = request.user
-    return render(request, 'home.html', { 'user': user, 'commit_id': commit_id} )
+    return render(request, 'home.html', { 'user': user } )
