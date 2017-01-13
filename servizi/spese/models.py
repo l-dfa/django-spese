@@ -24,23 +24,23 @@ from django.db.models import Q
 from taggit.managers import TaggableManager       # adding tagging (blog's tagging, not django's)
 
 
-class ExpenseManager(models.Manager):
-    """Manager class of Expense objects.
-    
-    This class derive from class *Expense* of *django-expense* app.
-    Please keep note of its copyright @
-    https://django-expense.readthedocs.io/en/latest/license.html
-    """
-    
-    def get_months(self):
-        """Return the list of the months where expense objects are recorded"""
-        
-        return Expense.objects.dates('date', 'month', order='DESC')
-
-    def get_years(self):
-        """Returns the list of the years where expense objects are recorded"""
-        
-        return Expense.objects.dates('date', 'year', order='DESC')
+# class ExpenseManager(models.Manager):
+#     """Manager class of Expense objects.
+#     
+#     This class derive from class *Expense* of *django-expense* app.
+#     Please keep note of its copyright @
+#     https://django-expense.readthedocs.io/en/latest/license.html
+#     """
+#     
+#     def get_months(self):
+#         """Return the list of the months where expense objects are recorded"""
+#         
+#         return Expense.objects.dates('date', 'month', order='DESC')
+# 
+#     def get_years(self):
+#         """Returns the list of the years where expense objects are recorded"""
+#         
+#         return Expense.objects.dates('date', 'year', order='DESC')
 
 class Account(models.Model):
     """ This model represents from where to pay for expense
@@ -85,7 +85,7 @@ class Expense(models.Model):
     user    = models.ForeignKey( User )
     account = models.ForeignKey( Account, related_name='expenses', null=False, default=1 )
     work_cost_type = models.ForeignKey( 'WCType', related_name='work_cost_type', null=True, blank=True )
-    date    = models.DateField( _('date'), 'date', null=True, blank=True, default=timezone.now)
+    date    = models.DateField( _('date'), 'date', default=timezone.now)
     description    = models.TextField( _('description'), max_length=500, null=True,
                                        blank=True
                                      )

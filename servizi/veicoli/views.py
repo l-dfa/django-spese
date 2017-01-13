@@ -4,9 +4,13 @@
         - change
         - index
         - detail
+        - reports
+            - calculate_gas_consumption
 '''
 
 #{ module history
+#    ldfa @ 2017.01.12 index:  + filtering events by django-filter
+#    ldfa @ 2017.01.11 index:  + filtering events by django-filter
 #    ldfa @ 2016.12.12 change: + transaction.atomic
 #                      change: + check current user against expense user
 #                      detail: + check current user against expense user
@@ -38,14 +42,17 @@ from django.contrib.auth.decorators import login_required
 # django models
 from django.db import transaction
 from django.db.models import Max
+from django.db.models import Sum
 
 # spese & taggit
 from spese.models import Expense, Account
 from spese.forms import ExpenseForm
 from spese.utils import get_accounts
+from spese.views import RepoItem
 from taggit.models import Tag
 from .models import VEvent, Vehicle, Event
 from .forms import EventForm
+from .filters import EventFilter
 
 
 @login_required(login_url="/login/")
@@ -214,13 +221,144 @@ def change(request, expense_id):
 def index(request):
     page_identification = 'Veicoli'
     # event_expense_list = [event.expense.pk for event in Event.objects.filter(expense__user=request.user).order_by('-expense__date')]
-    event_list = Event.objects.filter(expense__user=request.user).order_by('vehicle', '-expense__date')      #######   SVILUPPO
+    # event_list = Event.objects.filter(expense__user=request.user).order_by('vehicle', '-expense__date')      #######   SVILUPPO
+    event_list = EventFilter(request.GET, request=request, queryset=Event.objects.filter(expense__user=request.user))
     ### TRACE ###    pdb.set_trace()
     return render(request, 'veicoli/index.html', {'page_identification': page_identification,
                                                   'event_list': event_list,
                                                 }
                  )
 
+                 
+@login_required(login_url='/login/')
+def reports(request):
+    page_identification = 'Veicoli: reports'
+    # event_expense_list = [event.expense.pk for event in Event.objects.filter(expense__user=request.user).order_by('-expense__date')]
+    # event_list = Event.objects.filter(expense__user=request.user).order_by('vehicle', '-expense__date')      #######   SVILUPPO
+    event_list = EventFilter(request.GET, request=request, queryset=Event.objects.filter(expense__user=request.user))
+    lgc  = calculate_gas_consumption(event_list)        # list gas consumption
+    lrv  = repo_vehicles(event_list)                    # list repo vehicles
+    lret = repo_event_type(event_list)                    # list repo vehicles
+    ### TRACE ###    pdb.set_trace()
+    return render(request, 'veicoli/reports.html', { 'page_identification': page_identification,
+                                                     'list_gas_consumption': lgc,
+                                                     'list_repo_vehicles': lrv,
+                                                     'list_repo_event_type': lret,
+                                                     'event_list': event_list,
+                                                   }
+                 )
+
+
+def repo_event_type(el):
+    ''' in and out expense by event type,
+            - el,     expenses (query)list
+    '''
+    vevents = [e.vevent for e in el.qs]
+    vevents = list(set(vevents))
+    # pdb.set_trace()
+    list_event_type = []
+    total_in  = 0
+    total_out = 0
+    for item in vevents:
+        # in veicoli there aren't transfer funds
+        # tfs = TransferFund.objects.values_list('source', flat=True)
+        # tfd = TransferFund.objects.values_list('destination', flat=True)
+        
+        # get income (>0)
+        sum = el.qs.filter(vevent=item, expense__amount__gt=0)
+        sum = sum.aggregate(Sum("expense__amount"))
+        item.positive = sum["expense__amount__sum"] if sum and sum["expense__amount__sum"] else 0
+
+        # get outcome (<0)
+        sum = el.qs.filter(vevent=item, expense__amount__lt=0)
+        sum = sum.aggregate(Sum("expense__amount"))
+        item.negative = sum["expense__amount__sum"] if sum and sum["expense__amount__sum"] else 0
+
+        ri = RepoItem(item.name, item.positive, item.negative)
+        total_in  += item.positive
+        total_out += item.negative
+        list_event_type.append(ri)
+    rt = RepoItem('totals', total_in, total_out)
+    list_event_type.append(rt)
+    return list_event_type
+
+
+def repo_vehicles(el):
+    ''' in and out expense by vehicles,
+            - el,     expenses (query)list
+    '''
+    vehicles = [e.vehicle for e in el.qs]
+    vehicles = list(set(vehicles))
+    # pdb.set_trace()
+    list_vehicles = []
+    total_in  = 0
+    total_out = 0
+    for item in vehicles:
+        # in veicoli there aren't transfer funds
+        # tfs = TransferFund.objects.values_list('source', flat=True)
+        # tfd = TransferFund.objects.values_list('destination', flat=True)
+        
+        # get income (>0)
+        sum = el.qs.filter(vehicle=item, expense__amount__gt=0)
+        sum = sum.aggregate(Sum("expense__amount"))
+        item.positive = sum["expense__amount__sum"] if sum and sum["expense__amount__sum"] else 0
+
+        # get outcome (<0)
+        sum = el.qs.filter(vehicle=item, expense__amount__lt=0)
+        sum = sum.aggregate(Sum("expense__amount"))
+        item.negative = sum["expense__amount__sum"] if sum and sum["expense__amount__sum"] else 0
+
+        ri = RepoItem(item.name, item.positive, item.negative)
+        total_in  += item.positive
+        total_out += item.negative
+        list_vehicles.append(ri)
+    rt = RepoItem('totals', total_in, total_out)
+    list_vehicles.append(rt)
+    return list_vehicles
+
+    
+class Consumption(object):
+    def __init__(self, name, initial_km, final_km, fuel_quantity):
+        self.name = name
+        self.initial_km = initial_km
+        self.final_km = final_km
+        self.km = final_km - initial_km
+        self.fuel_quantity = fuel_quantity
+        self.unit_consumption =  round( (self.final_km - self.initial_km) / self.fuel_quantity, 2 ) if self.fuel_quantity>0 else 0
+
+    def __str__(self):
+        """return name"""
+        return "{0}: {} km/l on {} km".format(self.name, self.unit_consumption, self.km)
+
+def calculate_gas_consumption(el):
+    """ from event list return dict with v.name/v.gas consumption (Km/l)
+        algorithm:
+            - get list of vehicles
+            - foreach vehicle.
+                - get all fuel events+expenses, ordered by expense date
+                - + calc.liters of fuel: expense__amount/unit_cost
+                - then sum all liters and calc. max km/sum_of_liters
+    """
+    vehicles = [e.vehicle for e in el.qs]
+    vehicles = list(set(vehicles))
+    result = []
+    for vehicle in vehicles:
+        lel = el.qs.filter(vehicle=vehicle, vevent__name='fuel').order_by('expense__date')
+        fuel_quantity = 0
+        for e in lel:
+            l = -e.expense.amount / e.unit_cost if e.unit_cost and e.unit_cost>0 else 0
+            fuel_quantity += l
+        ### TRACE ###        pdb.set_trace()
+        final_km = lel[len(lel)-1].km
+        initial_km = 0
+        try:
+            purchase = Event.objects.get(vehicle=vehicle, vevent__name='purchase')
+            initial_km = purchase.km
+        except:
+            pass
+        consumption = Consumption(name=vehicle.name, initial_km=initial_km, final_km=final_km, fuel_quantity=fuel_quantity)
+        result.append(consumption)
+    return result
                  
 @login_required(login_url="login/")
 def detail(request, expense_id):

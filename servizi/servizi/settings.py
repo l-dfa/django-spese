@@ -189,4 +189,5 @@ LOGGING = {
     }    
 }
 
-COMMIT_ID = '1b192a0'
+COMMIT_ID = 'd2cbf7a'
+

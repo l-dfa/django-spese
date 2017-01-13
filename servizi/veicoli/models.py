@@ -1,4 +1,7 @@
 # veicoli/models.py
+#{ module history
+#    ldfa@2017.01.11 + unique option in VType, VEvent & Vehicle name fields
+#}
 import datetime
 
 from django.db import models
@@ -13,11 +16,11 @@ from spese.models import Expense
 class VType(models.Model):
     """ Vehicle type representation
         :Fields:
-            * ``name``, the vehicle name;
-            * ``description``, the vehicle description;
+            * ``name``,        v.type name (examples: car, motorcycle, aeroplane, starship, ...);
+            * ``description``, its description;
     """
     
-    name = models.CharField(_('name'), max_length=50)
+    name = models.CharField(_('name'), max_length=50, unique=True)
     description = models.CharField(_('description'), max_length=250)
 
     class Meta:
@@ -31,11 +34,11 @@ class VType(models.Model):
 class VEvent(models.Model):
     """ Vehicle event type
         :Fields:
-            * ``name``, the vehicle event type name;
+            * ``name``,        event type name (examples: fuel, maintenance, ...)
             * ``description``, its description.
     """
     
-    name = models.CharField(_('name'), max_length=50)
+    name = models.CharField(_('name'), max_length=50, unique=True)
     description = models.CharField(_('description'), max_length=250)
 
     class Meta:
@@ -48,15 +51,17 @@ class VEvent(models.Model):
         
 class Vehicle(models.Model):
     """ Vehicle representation
-    
-    :Fields:
-    
-    * ``name``, the source name;
-    * ``users``, who can use this source.
+        :Fields:
+            * ``users``,     (a ref.to) who can use this vehicle.
+            * ``name``,      the v.name;
+            * ``type``,      (a ref.to) the v.type (VType)
+            * ``description``, v.description
+            * ``start``,     v.availability start date
+            * ``end``,       and v. availability end date (if None, now available)
     """
     
     user = models.ForeignKey(User)
-    name = models.CharField(_('name'), max_length=50)
+    name = models.CharField(_('name'), max_length=50, unique=True)
     type = models.ForeignKey(VType)
     description = models.CharField(_('description'), max_length=250)
     start = models.DateField(_('start'), 'start', null=True, blank=True, default=timezone.now)
@@ -75,9 +80,10 @@ class Event(models.Model):
         :Fields:
             * ``expense``, link to expense;
             * ``vehicle``, link to vehicle;
-            * ``vevent``, link to event type;
-            * ``km``, at what distance it occured;
+            * ``vevent``,  link to event type;
+            * ``km``,      at what distance it occured;
             * ``unit_cost``, how much costs the unit of the acquired item
+                             usually for refuelling events; i.e. €/l
     """
     
     expense = models.OneToOneField(Expense)
