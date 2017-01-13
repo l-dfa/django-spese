@@ -323,7 +323,7 @@ class Consumption(object):
         self.initial_km = initial_km
         self.final_km = final_km
         self.km = final_km - initial_km
-        self.fuel_quantity = fuel_quantity
+        self.fuel_quantity = round(fuel_quantity, 2)
         self.unit_consumption =  round( (self.final_km - self.initial_km) / self.fuel_quantity, 2 ) if self.fuel_quantity>0 else 0
 
     def __str__(self):
@@ -356,6 +356,7 @@ def calculate_gas_consumption(el):
             initial_km = purchase.km
         except:
             pass
+        initial_km = lel[0].km if lel and initial_km==0 else initial_km
         consumption = Consumption(name=vehicle.name, initial_km=initial_km, final_km=final_km, fuel_quantity=fuel_quantity)
         result.append(consumption)
     return result
