@@ -12,7 +12,9 @@
             - repo_work_cost_types
             - repo_tags
 '''
-#{ module history
+#{ module history  (notepad users: cursor prev.curly bracket, then ctrl+alt+b to highlight, alt+h to hide)
+#    ldfa@2017.04.14 filters.py: + "not_for_work" & "description" filter fields
+#                    +export_csv: export current expenses list to csv file
 #    ldfa@2017.01.13 RepoItem: balance calculated in object instantiation instead
 #                              of a parameter passing
 #                    repo_accounts, repo_work_cost_types, repo_tags: commented out @login_required
@@ -55,6 +57,7 @@
 #}
 
 
+import csv
 import pdb                              # python debugging
 import sys
 import logging
@@ -225,13 +228,29 @@ def transfer_funds(request):
 @login_required(login_url='/login/')
 def index(request):
     page_identification = 'Spese'
-    ### TRACE ###    pdb.set_trace()
+    ### TRACE ###     pdb.set_trace()
     e_l = ExpenseFilter(request.GET, request=request, queryset=Expense.objects.filter(user=request.user))   # expenses_list
+    request.session['filter_data'] = e_l.data
     return render(request, 'spese/index.html', { 'page_identification': page_identification,
                                                  'expenses_list': e_l,
                                                }
                  )    
 
+@login_required(login_url="/login/")
+def export_csv(request):
+    # Create the HttpResponse object with the appropriate CSV header.
+    filter_data = request.session.get('filter_data')
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="expense_list.csv"'
+
+    e_l = ExpenseFilter(filter_data, request=request, queryset=Expense.objects.filter(user=request.user))   # expenses_list
+    # pdb.set_trace()
+    writer = csv.writer(response)
+    for row in e_l.qs:
+        writer.writerow([row.pk, row.account.name, row.work_cost_type.name if row.work_cost_type else '', row.date, row.description, row.amount])
+
+    return response
+    
                  
 @login_required(login_url="login/")
 def detail(request, expense_id):

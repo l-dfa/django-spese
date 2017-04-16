@@ -9,6 +9,7 @@ from . import views
 app_name = 'spese'
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^export_csv/$', views.export_csv, name='export_csv'),
     url(r'^(?P<expense_id>[0-9]+)/$', views.detail, name='detail'),
     url(r'^add/$', views.add, name='add'),
     url(r'^transfer_funds/$', views.transfer_funds, name='transfer_funds'),
