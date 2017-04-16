@@ -414,7 +414,9 @@ def balance(request):
         for accounts, tags, work cost types
     """
     page_identification = 'Spese: Reports'
-    e_l = ExpenseFilter(request.GET, request=request, queryset=Expense.objects.filter(user=request.user))   # expenses_list
+    filter_data = request.session.get('filter_data')
+
+    e_l = ExpenseFilter(filter_data, request=request, queryset=Expense.objects.filter(user=request.user))   # expenses_list
 
     list_external_flow_by_account = repo_accounts(e_l)
     list_external_flow_by_tags = repo_tags(e_l)

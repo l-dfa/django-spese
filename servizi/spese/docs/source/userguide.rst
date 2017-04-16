@@ -198,11 +198,12 @@ the one you obtain from the *django-spese* repository. It's
 there only as a demo to host our application.
 
 We are concerned about the *django-spese* menu. At *home* we have
-two voices:
+this voices:
 
 * *add* adding us a new expense;
 * *transfer funds* to realize a transfer of money from one source to another;
-* *reports* to show a summary about our tracked accounts and tags.
+* *reports* to show a summary about our tracked accounts and tags;
+* *→csv* to export the showed expenses list to a csv file.
 
 If we click on an expense description, we'll get its detail:
 
@@ -214,6 +215,47 @@ and from there we can:
 * *change* to edit the expense characteristics;
 * *toggle* to change the amount sign of the expense;
 * *delete* to remove the expense.
+
+In case of a transfer between funds, its details view show us even a link to the
+associated transfer. In next picture this link is highlighted by the green oval.
+
+.. image:: images/use-02-01.1.svg
+
+If we wish to focus on a limited expenses list, we can use the *filter section*,
+located just below the *django-spese* menu. If we click on *+ Set filter* 
+the application will expand the filter section:
+
+.. image:: images/use-01-01.1.png
+
+In this section we can choose to select our expenses:
+
+* by *account*, selecting it using the first selection list;
+* by relation with work, using the second selection list, titled *unrelated to work*;
+  this list has three choises: *unknown* selects expenses of every type, *yes*
+  selects only expenses with *work cost type* value unset, and *no* selects 
+  only expenses with a valid work cost type value set;
+* by a date interval, using the two date fields;
+* and, finally, by a piece of description, writing it in the last field of the section.
+
+Filtering, all choosed values are used contemporary. I.e. if we choose account and
+description, this is exactly what we obtain: a list of expenses that satisfy both
+the criterions.
+
+After we have compiled the filter fields, we need to click on the *transmit request*
+button to make effective our selections.
+
+Hereafter I depict an example of use of filter, where we request to show only expenses:
+
+* about *cache* account,
+* **and** *not* related with work,
+* **and** occurred after 1st october 2016,
+* **and** with slice of word *sp* in description.
+
+.. image:: images/use-01-01.2.png
+
+Be aware that clicking *+ Set filter* and *- Set filter* we open, or close,
+the filter section. **But** values we set in it are valid anyway. To reset
+filter (by now) we must clear every value in it manually.
 
 Adding expenses
 ~~~~~~~~~~~~~~~
@@ -304,7 +346,10 @@ and work cost types:
 
 .. image:: images/use-06.png
 
-Here we wish spend a word about the overall layout of this reports.
+Just a note. Remeber that *reports* works using the filter set in *spese* home.
+So reports are homogeneous with expenses list.
+
+Now, we spend a word about the overall layout of these reports.
 
 First of all: the window has three tables:
 
@@ -328,4 +373,9 @@ we observe money flow from/to our system boundaries.
 The last row of every table shows the relative column grand total, with the exceptions
 of the transfer funds columns that aren't calculated.
 
+→csv
+~~~~~
+
+Clicking this menu voice we export the showed expenses list to a file named 
+*expense_list.csv* located in the download directory of our web browser.
 

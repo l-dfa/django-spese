@@ -3,6 +3,17 @@
 Changelog
 =========
 
+Version 0.5
+-------------
+
+* fixed bug #3;
+* using django-filter to select on expenses list
+  by *account*, *date*, *work_cost_type* presence
+  and partial *description*;
+* exporting expenses list to csv file;
+* in transfer fund detail, added reference to other expense;
+* documents updated.
+
 Version 0.4
 -------------
 
