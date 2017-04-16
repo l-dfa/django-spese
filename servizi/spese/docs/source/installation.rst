@@ -17,9 +17,9 @@ Futhermore I take for granted you know how to use virtualenv
 and you'll use it to create a Django project to test this app.
 
 Hereafter I describe how install from a distribution. You can download it from `this tar.gz
-<https://github.com/l-dfa/django-spese/releases/download/v0.1/django-spese-0.1.tar.gz>`_ ,
+<https://github.com/l-dfa/django-spese/releases/download/v0.5/django-spese-0.5.tar.gz>`_ ,
 or from `this zip archive
-<https://github.com/l-dfa/django-spese/releases/download/v0.1/django-spese-0.1.zip>`_ 
+<https://github.com/l-dfa/django-spese/releases/download/v0.5/django-spese-0.5.zip>`_ 
 if you prefer a zipped version.
 
 .. note:: If you are a developer, maybe you'd like to clone from the

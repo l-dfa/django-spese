@@ -69,7 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'spese.context_processors.commit_id',
+                'spese.context_processors.commit_ver',
             ],
         },
     },
@@ -189,7 +189,7 @@ LOGGING = {
     }    
 }
 
-COMMIT_ID = '332ae0c'
+COMMIT_VER = 'v0.5'
 
 
 

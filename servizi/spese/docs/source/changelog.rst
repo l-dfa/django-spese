@@ -12,7 +12,8 @@ Version 0.5
   and partial *description*;
 * exporting expenses list to csv file;
 * in transfer fund detail, added reference to other expense;
-* documents updated.
+* user manual updated;
+* added version in status bar.
 
 Version 0.4
 -------------
