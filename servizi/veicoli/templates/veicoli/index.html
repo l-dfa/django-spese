@@ -6,6 +6,7 @@
             <nav class="navbar operations">
                 <ul>
                    <li> <a href="{% url 'veicoli:add' %}">add</a> </li>
+                   <li> <a href="{% url 'veicoli:reports' %}">reports</a> </li>
                 </ul>
             </nav>
         </div>
@@ -14,6 +15,23 @@
 
     {% block operation_content %}
     <div class="container">
+        <details class="spese-filter">
+            <summary>Set filter</summary>
+            <div class="u-full-width">
+                <form action="" method="get">
+                    {% for field in event_list.form %}
+                        <div class="fieldWrapper">
+                            {{ field.errors }}
+                            {{ field.label_tag }} {{ field }}
+                            {% if field.help_text %}
+                                <p class="help">{{ field.help_text|safe }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <input type="submit" />
+                </form>
+            </div>
+        </details>
         <div class="u-full-width">
         {% if event_list %}
             <table class="u-full-width">
@@ -28,7 +46,7 @@
                 </tr>
             </thead>
             <tbody>
-            {% for event in event_list %}
+            {% for event in event_list.qs %}
                 <tr>
                     <td>{{ event.vehicle.name }}</td>
                     <td>{{ event.vevent.name }}</td>
@@ -42,7 +60,7 @@
             </tbody>
             </table> 
         {% else %}
-            <p>No expenses are available.</p>
+            <p>No events are available.</p>
         {% endif %}
         </div>
     </div>    

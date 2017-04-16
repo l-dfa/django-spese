@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^(?P<expense_id>\d+)$', views.detail, name='detail'),
     url(r'^add/$', views.add, name='add'),
     url(r'^change/(?P<expense_id>[0-9]+)/$', views.change, name='change'),
+    url(r'^reports/$', views.reports, name='reports'),
 ]

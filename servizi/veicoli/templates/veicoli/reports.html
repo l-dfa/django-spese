@@ -7,7 +7,7 @@
             <summary>Set filter</summary>
             <div class="u-full-width">
                 <form action="" method="get">
-                    {% for field in expenses_list.form %}
+                    {% for field in event_list.form %}
                         <div class="fieldWrapper">
                             {{ field.errors }}
                             {{ field.label_tag }} {{ field }}
@@ -22,54 +22,44 @@
         </details>
         <div class="u-full-width">
             <div class="table_balance">
-                {% if list_external_flow_by_account %}
+                {% if list_gas_consumption %}
                     <table class="u-full-width">
                     <thead>
                         <tr>
-                            <th>account</th>
-                            <th class="s-text-right" style="width:13.4%">ext-in</th>
-                            <th class="s-text-right" style="width:13.4%">int-in</th>
-                            <th class="s-text-right" style="width:13.4%">int-out</th>
-                            <th class="s-text-right" style="width:13.4%">ext-out</th>
-                            <th class="s-text-right" style="width:13.4%">balance</th>
+                            <th>consumption: vehicle</th>
+                            <th class="s-text-right" style="width:20%">km</th>
+                            <th class="s-text-right" style="width:20%">litres</th>
+                            <th class="s-text-right" style="width:20%">km/l</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for item in list_external_flow_by_account %}
-                        <tr {% if forloop.last %} class='last_tr'{% endif %} >
-                            <td {% if forloop.last %} class='s-text-right'{% endif %} >{{ item.name }}</td>
-                            <td class="s-text-right" style="width:13.4%">{{ item.positive }}</td>
-                            {% if forloop.last %}
-                                <td class="s-text-right" style="width:13.4%"> </td>
-                                <td class="s-text-right" style="width:13.4%"> </td>
-                            {% else %}
-                                <td class="s-text-right" style="width:13.4%">{{ item.int_positive }}</td>
-                                <td class="s-text-right" style="width:13.4%">{{ item.int_negative }}</td>
-                            {% endif %}
-                            <td class="s-text-right" style="width:13.4%">{{ item.negative }}</td>
-                            <td class="s-text-right" style="width:13.4%">{{ item.balance }}</td>
+                    {% for item in list_gas_consumption %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.km }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.fuel_quantity }}</td>
+                            <td class="s-text-right" style="width:20%">{{ item.unit_consumption }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
                     </table> 
                 {% else %}
-                    <p>No accounts are available.</p>
+                    <p>No vehicles are available.</p>
                 {% endif %}
             </div>
-
             <div class="table_balance">
-                {% if list_external_flow_by_tags %}
+                {% if list_repo_vehicles %}
                     <table class="u-full-width">
                     <thead>
                         <tr>
-                            <th>tag</th>
+                            <th>expenses: vehicle</th>
                             <th class="s-text-right" style="width:20%">in</th>
                             <th class="s-text-right" style="width:20%">out</th>
                             <th class="s-text-right" style="width:20%">balance</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for item in list_external_flow_by_tags %}
+                    {% for item in list_repo_vehicles %}
                         <tr {% if forloop.last %} class='last_tr'{% endif %} >
                             <td>{{ item.name }}</td>
                             <td class="s-text-right" style="width:20%">{{ item.positive }}</td>
@@ -80,23 +70,23 @@
                     </tbody>
                     </table> 
                 {% else %}
-                    <p>No tags are available.</p>
+                    <p>No vehicles are available.</p>
                 {% endif %}
             </div>
 
             <div class="table_balance">
-                {% if list_wcts %}
+                {% if list_repo_event_type %}
                     <table class="u-full-width">
                     <thead>
                         <tr>
-                            <th>work cost type</th>
+                            <th>event type</th>
                             <th class="s-text-right" style="width:20%">in</th>
                             <th class="s-text-right" style="width:20%">out</th>
                             <th class="s-text-right" style="width:20%">balance</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for item in list_wcts %}
+                    {% for item in list_repo_event_type %}
                         <tr {% if forloop.last %} class='last_tr'{% endif %} >
                             <td>{{ item.name }}</td>
                             <td class="s-text-right" style="width:20%">{{ item.positive }}</td>
@@ -107,7 +97,7 @@
                     </tbody>
                     </table> 
                 {% else %}
-                    <p>No work cost types are available.</p>
+                    <p>No event types are available.</p>
                 {% endif %}
             </div>
 

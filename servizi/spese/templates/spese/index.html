@@ -1,4 +1,5 @@
 {% extends 'spese/base_spese.html' %}
+{% load get_item %}
 
     {% block operations %}
     <div class="container">
@@ -8,6 +9,7 @@
                    <li> <a href="{% url 'spese:add' %}">add</a> </li>
                    <li> <a href="{% url 'spese:transfer_funds' %}">transfer funds</a> </li>
                    <li> <a href="{% url 'spese:balance' %}">reports</a> </li>
+                   <li> <a href="{% url 'spese:export_csv' %}">&rarr;csv</a> </li>
                 </ul>
             </nav>
         </div>
@@ -16,20 +18,37 @@
 
     {% block operation_content %}
     <div class="container">
+        <details class="spese-filter">
+            <summary>Set filter</summary>
+            <div class="u-full-width">
+                <form action="" method="get">
+                    {% for field in expenses_list.form %}
+                        <div class="fieldWrapper">
+                            {{ field.errors }}
+                            {{ field.label_tag }} {{ field }}
+                            {% if field.help_text %}
+                                <p class="help">{{ field.help_text|safe }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <input type="submit" />
+                </form>
+            </div>
+        </details>
         <div class="u-full-width">
         {% if expenses_list %}
             <table class="u-full-width">
             <thead>
                 <tr>
                     <th>account</th>
-                    <th>wrk cost type</th>
+                    <th>work cost type</th>
                     <th>date</th>
                     <th>description</th>
                     <th>amount</th>
                 </tr>
             </thead>
             <tbody>
-            {% for expense in expenses_list %}
+            {% for expense in expenses_list.qs %}
                 <tr>
                     <td>{{ expense.account.name }}</td>
                     <td>{{ expense.work_cost_type.name }}</td>
